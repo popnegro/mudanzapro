@@ -27,14 +27,12 @@ interface RecommendedCompaniesProps {
   selectedGeographicZone?: string;
   onZoneSelect?: (zoneName: string) => void;
   onBrandSelect?: (brandId: 'mendoza' | 'miranda' | 'empresas') => void;
-  onViewModeChange?: (mode: 'user' | 'dashboard') => void;
 }
 
 export default function RecommendedCompanies({ 
   selectedGeographicZone = 'all', 
   onZoneSelect,
-  onBrandSelect,
-  onViewModeChange
+  onBrandSelect
 }: RecommendedCompaniesProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');

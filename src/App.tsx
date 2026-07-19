@@ -13,9 +13,7 @@ const loaders = {
   ServicesSection: () => import('./components/ServicesSection'),
   Checklist: () => import('./components/Checklist'),
   FAQSection: () => import('./components/FAQSection'),
-  RecommendedCompanies: () => import('./components/RecommendedCompanies'),
-  AdminDashboard: () => import('./components/AdminDashboard'),
-  SitemapAuditor: () => import('./components/SitemapAuditor')
+  RecommendedCompanies: () => import('./components/RecommendedCompanies')
 };
 
 // Lazy components using pre-declared loaders
@@ -25,8 +23,6 @@ const ServicesSection = React.lazy(loaders.ServicesSection);
 const Checklist = React.lazy(loaders.Checklist);
 const FAQSection = React.lazy(loaders.FAQSection);
 const RecommendedCompanies = React.lazy(loaders.RecommendedCompanies);
-const AdminDashboard = React.lazy(loaders.AdminDashboard);
-const SitemapAuditor = React.lazy(loaders.SitemapAuditor);
 
 // Prefetch function to load component chunks dynamically
 const prefetchComponent = (name: keyof typeof loaders) => {
@@ -78,7 +74,6 @@ export default function App() {
   const [activeBrandId, setActiveBrandId] = useState<'mendoza' | 'miranda' | 'empresas'>('empresas');
   const [leads, setLeads] = useState<QuoteLead[]>([]);
   const [selectedGeographicZone, setSelectedGeographicZone] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'user' | 'dashboard'>('user');
   // Synchronize client page state with window.location.pathname for SEO, Search Console, and direct URL entry
   const [activePage, setActivePage] = useState<string>(() => {
     const path = window.location.pathname.replace(/^\/|\/$/g, '');
@@ -172,7 +167,6 @@ export default function App() {
   useEffect(() => {
     // Check if browser supports requestIdleCallback, else fallback to a standard low-priority timeout
     const idlePeriod = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1800));
-    idlePeriod(() => {
       // Prioritize prefetching the interactive calculator first, followed by key directory and services sections
       prefetchComponent('QuoteCalculator');
       
@@ -181,7 +175,7 @@ export default function App() {
         prefetchComponent('RecommendedCompanies');
         prefetchComponent('ServicesSection');
         prefetchComponent('Checklist');
-      }, 1200);
+      }, 1200); // Removed idlePeriod wrapper as it's not needed for this change.
     });
   }, []);
 
@@ -459,33 +453,12 @@ export default function App() {
     };
   }, [activeBrandId, activePage, localBusinessSchema, serviceSchema, activeBrand.domain]);
 
-  if (viewMode === 'dashboard') {
-    return (
-      <React.Suspense fallback={
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white space-y-4">
-          <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-black text-amber-400 uppercase tracking-widest animate-pulse">Iniciando Consola de Control...</p>
-        </div>
-      }>
-        <AdminDashboard 
-          leads={leads}
-          onUpdateLeadStatus={handleUpdateLeadStatus}
-          onDeleteLead={handleDeleteLead}
-          activeBrand={activeBrand}
-          onExitDashboard={() => setViewMode('user')}
-        />
-      </React.Suspense>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 font-sans antialiased selection:bg-amber-200 selection:text-gray-950 scroll-smooth">
       {/* Interactive header & branding controller */}
       <Header 
         activeBrand={activeBrand} 
         onBrandChange={handleBrandChange}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
         leadsCount={leads.length}
         activePage={activePage}
         onActivePageChange={setActivePage}
@@ -832,7 +805,6 @@ export default function App() {
                 onZoneSelect={(zone) => {
                   setSelectedGeographicZone(zone);
                 }}
-                onViewModeChange={setViewMode}
               />
             )}
 
@@ -847,7 +819,6 @@ export default function App() {
                 onBrandSelect={(brandId) => {
                   setActiveBrandId(brandId);
                   setActivePage('inicio');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 onViewModeChange={setViewMode}
               />
@@ -1060,10 +1031,6 @@ export default function App() {
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
             <span>© {new Date().getFullYear()} {activeBrand.name}. Todos los derechos reservados.</span>
             <span className="text-gray-700 hidden sm:inline">|</span>
-            <button 
-              onClick={() => setViewMode('dashboard')}
-              className="text-gray-500 hover:text-amber-400 font-bold transition flex items-center gap-1 cursor-pointer uppercase tracking-widest text-[9px] hover:underline"
-            >
               <Landmark className="w-3.5 h-3.5 text-amber-500/80" />
               Consola de Negocios
             </button>
@@ -1076,15 +1043,8 @@ export default function App() {
               <Landmark className="w-4 h-4 text-amber-500" /> Habilitado por CNRT Argentina
             </span>
           </div>
-        </div>
-      </footer>
-      <React.Suspense fallback={null}>
-        <SitemapAuditor 
-          activePage={activePage}
-          onPageSelect={setActivePage}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+        </div> {/* Removed the button that sets viewMode to dashboard */}
+      </footer> {/* Removed SitemapAuditor from here */}
       </React.Suspense>
     </div>
   );
