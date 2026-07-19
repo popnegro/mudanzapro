@@ -91,62 +91,6 @@ export default function Header({
         <span>¡OFERTA DE TEMPORADA! 15% de Descuento en tu mudanza de Lunes a Jueves reservando hoy • Precios fijos garantizados</span>
         <span className="hidden sm:inline bg-gray-950 text-amber-400 text-[9px] px-2 py-0.5 rounded-full font-black ml-1.5">CUPOS LIMITADOS</span>
       </div>
-
-      {/* Brand Switcher Bar (Simulating the SEO multi-domain strategy with clean regional portal labels) */}
-      <div className="bg-gray-900 text-gray-300 py-2.5 px-4 text-xs font-medium">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
-          <div className="flex items-center gap-1.5 text-gray-400">
-            <Globe className="w-3.5 h-3.5 text-amber-500" />
-            <span>Portales de Mudanzas Mendoza:</span>
-            <span className="hidden sm:inline text-gray-500">Selecciona el dominio regional dedicado para ver servicios de la zona</span>
-          </div>
-          <div className="flex items-center gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700/50">
-            <button
-              id="switch-mendoza"
-              onClick={() => {
-                onBrandChange('mendoza');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`px-2.5 py-1 rounded-md transition-all duration-250 cursor-pointer ${
-                activeBrand.id === 'mendoza'
-                  ? 'bg-amber-500 text-gray-950 font-bold shadow-xs'
-                  : 'hover:text-white hover:bg-gray-700/50'
-              }`}
-            >
-              mudanzasmendoza.com.ar
-            </button>
-            <button
-              id="switch-miranda"
-              onClick={() => {
-                onBrandChange('miranda');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`px-2.5 py-1 rounded-md transition-all duration-250 cursor-pointer ${
-                activeBrand.id === 'miranda'
-                  ? 'bg-sky-600 text-white font-bold shadow-xs'
-                  : 'hover:text-white hover:bg-gray-700/50'
-              }`}
-            >
-              mudanzasmiranda.com.ar
-            </button>
-            <button
-              id="switch-empresas"
-              onClick={() => {
-                onBrandChange('empresas');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`px-2.5 py-1 rounded-md transition-all duration-250 cursor-pointer ${
-                activeBrand.id === 'empresas'
-                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                  : 'hover:text-white hover:bg-gray-700/50'
-              }`}
-            >
-              empresasdemudanzas.com.ar
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
