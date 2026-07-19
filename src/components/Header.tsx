@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrandConfig } from '../types';
+import React, { useState, useEffect, useRef } from 'react';
+import { BrandConfig } from '../types'; // Added useRef
 import { Truck, ChevronDown, Menu, X, Globe, Calculator, Award, ClipboardList, HelpCircle, MapPin, MessageSquare, Phone, Mail, Sparkles, Star, ChevronRight } from 'lucide-react';
 
 interface HeaderProps {
@@ -23,6 +23,8 @@ export default function Header({
   onActivePageChange,
   onPrefetch
 }: HeaderProps) {
+  const mobileMenuRef = useRef<HTMLDivElement>(null); // Ref for the mobile menu container
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null); // Ref for the hamburger button
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Helper to prefetch the correct component chunk based on target page to minimize TTI/FID/INP latency
@@ -82,6 +84,46 @@ export default function Header({
     setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Effect for handling outside clicks, Escape key, and body scroll lock
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      // Check if the click is outside the menu and outside the button that opens it
+      if (
+        isMobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        mobileMenuButtonRef.current &&
+        !mobileMenuButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'; // Prevent scrolling on the body
+      // Set focus to the menu container itself to enable keyboard navigation within it
+      mobileMenuRef.current?.focus();
+
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleEscapeKey);
+    } else {
+      document.body.style.overflow = ''; // Restore scrolling on the body
+      mobileMenuButtonRef.current?.focus(); // Return focus to the button that opened the menu, if it exists
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = ''; // Ensure scroll is restored when component unmounts or state changes
+    };
+  }, [isMobileMenuOpen]); // Re-run effect when isMobileMenuOpen changes
 
   return (
     <header id="header-section" className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -228,10 +270,12 @@ export default function Header({
 
             {/* Mobile Hamburger Button */}
             <button
-              id="mobile-menu-btn"
+              id="mobile-menu-btn" // Add id for ref
+              ref={mobileMenuButtonRef} // Attach ref here
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition focus:outline-none cursor-pointer"
-              aria-label="Menu principal"
+              aria-label="Menu principal" // Add aria-label
+              aria-expanded={isMobileMenuOpen} // Add aria-expanded
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -242,6 +286,14 @@ export default function Header({
       {/* Mobile Drawer Navigation (Optimal for mobile clients) */}
       {isMobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white shadow-lg py-5 px-6 space-y-6 animate-fade-in divide-y divide-gray-100">
+        <div
+          id="mobile-drawer-navigation" // Add id for ref
+          ref={mobileMenuRef} // Attach ref here
+          className="lg:hidden border-t border-gray-100 bg-white shadow-lg py-5 px-6 space-y-6 animate-fade-in divide-y divide-gray-100"
+          role="dialog" // Add role
+          aria-modal="true" // Add aria-modal
+          tabIndex={-1} // Make the div focusable for initial focus
+        >
           
           {/* Primary Navigation Stack */}
           <div className="space-y-1.5">
