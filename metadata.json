@@ -1,0 +1,6 @@
+{
+  "name": "Mudanzas Mendoza",
+  "description": "Mudanzas Mendoza - Portal SEO local. Portal interactivo multi-marca de mudanzas locales con cotizador dinámico, buscador de barrios en Mendoza y panel de gestión de leads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
