@@ -9,6 +9,7 @@ import {
 interface QuoteCalculatorProps {
   activeBrand: BrandConfig;
   onNewLeadCreated: (lead: QuoteLead) => void;
+  onZoneSelect?: (zone: string) => void;
   onViewModeChange?: (mode: 'user' | 'dashboard') => void;
 }
 
@@ -16,6 +17,7 @@ export default function QuoteCalculator({
   activeBrand, 
   onNewLeadCreated, 
   onZoneSelect,
+  onViewModeChange,
 }: QuoteCalculatorProps) {
   // Wizard steps
   const [step, setStep] = useState<number>(1);
@@ -525,6 +527,9 @@ export default function QuoteCalculator({
                 onClick={(e) => {
                   e.preventDefault();
                   if (onViewModeChange) {
+                    onViewModeChange('dashboard');
+                  }
+                }}
                 className="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-50 transition cursor-pointer"
               >
                 Ver Panel de Leads (Simulador)

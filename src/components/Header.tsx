@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrandConfig } from '../types';
-import { Truck, ChevronDown, Menu, X, Globe, Calculator, Award, ClipboardList, HelpCircle, MapPin, MessageSquare, Phone, Mail, Sparkles } from 'lucide-react';
+import { Truck, ChevronDown, Menu, X, Globe, Calculator, Award, ClipboardList, HelpCircle, MapPin, MessageSquare, Phone, Mail, Sparkles, Star, ChevronRight } from 'lucide-react';
 
 interface HeaderProps {
   activeBrand: BrandConfig;

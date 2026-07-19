@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BRANDS, INITIAL_LEADS } from './data';
+import LeadManager from './components/LeadManager';
 import { QuoteLead, BrandConfig } from './types';
 import Header from './components/Header';
 import Breadcrumbs from './components/Breadcrumbs';
@@ -74,6 +75,7 @@ export default function App() {
   const [activeBrandId, setActiveBrandId] = useState<'mendoza' | 'miranda' | 'empresas'>('empresas');
   const [leads, setLeads] = useState<QuoteLead[]>([]);
   const [selectedGeographicZone, setSelectedGeographicZone] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'user' | 'dashboard'>('user');
   // Synchronize client page state with window.location.pathname for SEO, Search Console, and direct URL entry
   const [activePage, setActivePage] = useState<string>(() => {
     const path = window.location.pathname.replace(/^\/|\/$/g, '');
@@ -167,6 +169,7 @@ export default function App() {
   useEffect(() => {
     // Check if browser supports requestIdleCallback, else fallback to a standard low-priority timeout
     const idlePeriod = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1800));
+    idlePeriod(() => {
       // Prioritize prefetching the interactive calculator first, followed by key directory and services sections
       prefetchComponent('QuoteCalculator');
       
@@ -175,7 +178,7 @@ export default function App() {
         prefetchComponent('RecommendedCompanies');
         prefetchComponent('ServicesSection');
         prefetchComponent('Checklist');
-      }, 1200); // Removed idlePeriod wrapper as it's not needed for this change.
+      }, 1200);
     });
   }, []);
 
@@ -459,6 +462,8 @@ export default function App() {
       <Header 
         activeBrand={activeBrand} 
         onBrandChange={handleBrandChange}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
         leadsCount={leads.length}
         activePage={activePage}
         onActivePageChange={setActivePage}
@@ -476,7 +481,7 @@ export default function App() {
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={activePage}
+          key={viewMode === 'dashboard' ? 'dashboard' : activePage}
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -15 }}
@@ -484,7 +489,15 @@ export default function App() {
         >
           <main className="min-h-[60vh]">
             <React.Suspense fallback={<LoadingSpinner />}>
-              {activePage === 'inicio' && (
+              {viewMode === 'dashboard' ? (
+                <LeadManager 
+                  leads={leads} 
+                  onUpdateLeadStatus={handleUpdateLeadStatus} 
+                  onDeleteLead={handleDeleteLead} 
+                />
+              ) : (
+                <>
+                  {activePage === 'inicio' && (
               <div className="space-y-16 pb-16">
                 {/* Main hero showcase with zone interaction */}
                 <Hero 
@@ -805,6 +818,7 @@ export default function App() {
                 onZoneSelect={(zone) => {
                   setSelectedGeographicZone(zone);
                 }}
+                onViewModeChange={setViewMode}
               />
             )}
 
@@ -979,6 +993,8 @@ export default function App() {
                 </div>
               </section>
             )}
+                </>
+              )}
             </React.Suspense>
           </main>
         </motion.div>
@@ -1031,6 +1047,12 @@ export default function App() {
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
             <span>© {new Date().getFullYear()} {activeBrand.name}. Todos los derechos reservados.</span>
             <span className="text-gray-700 hidden sm:inline">|</span>
+            <button 
+              onClick={() => {
+                setViewMode(viewMode === 'dashboard' ? 'user' : 'dashboard');
+              }}
+              className="hover:text-white transition flex items-center gap-1 cursor-pointer"
+            >
               <Landmark className="w-3.5 h-3.5 text-amber-500/80" />
               Consola de Negocios
             </button>
@@ -1043,9 +1065,8 @@ export default function App() {
               <Landmark className="w-4 h-4 text-amber-500" /> Habilitado por CNRT Argentina
             </span>
           </div>
-        </div> {/* Removed the button that sets viewMode to dashboard */}
-      </footer> {/* Removed SitemapAuditor from here */}
-      </React.Suspense>
+        </div>
+      </footer>
     </div>
   );
 }
