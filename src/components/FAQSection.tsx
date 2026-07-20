@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MENDOZA_FAQ } from '../data';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -29,48 +30,66 @@ export default function FAQSection() {
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {MENDOZA_FAQ.map((item, idx) => {
             const isOpen = openIdx === idx;
             return (
-              <div
+              <motion.div
                 key={idx}
                 itemScope
                 itemProp="mainEntity"
                 itemType="https://schema.org/Question"
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-2xs transition-all"
+                layout
+                className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
+                  isOpen 
+                    ? 'bg-white border-amber-500/30 shadow-md ring-1 ring-amber-500/5' 
+                    : 'bg-white border-gray-100 hover:border-gray-200 shadow-2xs'
+                }`}
               >
                 <button
                   onClick={() => toggleFAQ(idx)}
-                  className="w-full text-left p-5 flex justify-between items-center gap-4 hover:bg-slate-50/50 transition cursor-pointer"
+                  className="w-full text-left p-5 flex justify-between items-center gap-4 transition-colors cursor-pointer focus:outline-none"
                   aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${idx}`}
                 >
                   <div className="flex items-center gap-3">
-                    <HelpCircle className="w-5 h-5 text-amber-500 shrink-0" />
-                    <span itemProp="name" className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                    <HelpCircle className={`w-5 h-5 shrink-0 transition-colors duration-300 ${isOpen ? 'text-amber-500' : 'text-gray-400'}`} aria-hidden="true" />
+                    <span itemProp="name" className={`text-xs sm:text-sm font-bold transition-colors duration-300 ${isOpen ? 'text-gray-900' : 'text-gray-700'}`}>
                       {item.q}
                     </span>
                   </div>
-                  {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
-                  )}
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-300 ${isOpen ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-gray-400'}`}>
+                    {isOpen ? (
+                      <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" />
+                    )}
+                  </div>
                 </button>
 
-                {isOpen && (
-                  <div 
-                    itemScope
-                    itemProp="acceptedAnswer"
-                    itemType="https://schema.org/Answer"
-                    className="px-5 pb-5 pt-1 text-xs text-gray-600 leading-relaxed border-t border-slate-50"
-                  >
-                    <div itemProp="text" className="bg-slate-50 p-4 rounded-xl text-xs text-gray-600">
-                      {item.a}
-                    </div>
-                  </div>
-                )}
-              </div>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      id={`faq-answer-${idx}`}
+                      role="region"
+                      aria-label={`Respuesta a: ${item.q}`}
+                      itemScope
+                      itemProp="acceptedAnswer"
+                      itemType="https://schema.org/Answer"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    >
+                      <div className="px-5 pb-5 pt-0 text-xs text-gray-600 leading-relaxed border-t border-slate-50">
+                        <div itemProp="text" className="bg-slate-50/70 p-4 rounded-xl text-xs text-gray-600 border border-slate-100 leading-relaxed">
+                          {item.a}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             );
           })}
         </div>

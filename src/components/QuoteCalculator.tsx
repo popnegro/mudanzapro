@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Department, ServiceItem, FurnitureItem, QuoteLead, BrandConfig } from '../types';
+import { Department, ServiceItem, FurnitureItem, QuoteLead, BrandConfig, MoveSize } from '../types';
 import { DEPARTMENTS, SERVICES, FURNITURE_ITEMS } from '../data';
 import { 
   ArrowRight, Truck, Clipboard, ShieldAlert, Sparkles, Plus, Minus, 
   Trash2, Mail, Phone, User, Calendar, Check, AlertCircle, Info, Clock, ShieldCheck
 } from 'lucide-react';
+import AddressAutocomplete from './AddressAutocomplete';
 
 interface QuoteCalculatorProps {
   activeBrand: BrandConfig;
@@ -23,6 +24,12 @@ export default function QuoteCalculator({
   const [step, setStep] = useState<number>(1);
   const [success, setSuccess] = useState<boolean>(false);
   
+  // Address states for autocompletion
+  const [originAddress, setOriginAddress] = useState<string>('');
+  const [destinationAddress, setDestinationAddress] = useState<string>('');
+  const [originLatLng, setOriginLatLng] = useState<{ lat: number; lng: number } | null>(null);
+  const [destinationLatLng, setDestinationLatLng] = useState<{ lat: number; lng: number } | null>(null);
+
   // Form state
   const [origin, setOrigin] = useState<string>('capital');
   const [destination, setDestination] = useState<string>('godoy_cruz');
@@ -30,7 +37,7 @@ export default function QuoteCalculator({
   const [hasElevatorDest, setHasElevatorDest] = useState<boolean>(true);
   const [floorOrigin, setFloorOrigin] = useState<number>(0);
   const [floorDest, setFloorDest] = useState<number>(0);
-  const [moveSize, setMoveSize] = useState<'chico' | 'mediano' | 'grande'>('mediano');
+  const [moveSize, setMoveSize] = useState<MoveSize>('mediano');
   
   // Selected furniture items
   const [selectedFurniture, setSelectedFurniture] = useState<Record<string, number>>({
@@ -184,12 +191,34 @@ export default function QuoteCalculator({
 
     // 2. Distance calculation
     let km = 10;
-    if (origin === destination) {
-      km = 8;
-    } else if (origin === 'san_rafael' || destination === 'san_rafael') {
-      km = 230; // Larga distancia
+    if (originLatLng && destinationLatLng) {
+      const getHaversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+        const R = 6371; // Earth radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2); 
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        return R * c;
+      };
+      
+      const rawDistance = getHaversineDistance(
+        originLatLng.lat, originLatLng.lng,
+        destinationLatLng.lat, destinationLatLng.lng
+      );
+      // Driving route correction factor (~1.3x straight line distance)
+      km = Math.round(rawDistance * 1.3);
+      if (km < 2) km = 2; // min boundary
     } else {
-      km = 18; // Distancia promedio entre depts de Mendoza
+      if (origin === destination) {
+        km = 8;
+      } else if (origin === 'san_rafael' || destination === 'san_rafael') {
+        km = 230; // Larga distancia
+      } else {
+        km = 18; // Distancia promedio entre depts de Mendoza
+      }
     }
     setDistanceKm(km);
 
@@ -265,7 +294,8 @@ export default function QuoteCalculator({
     setEstimatedCost(cost);
   }, [
     origin, destination, hasElevatorOrigin, hasElevatorDest, 
-    floorOrigin, floorDest, selectedFurniture, selectedServices, scheduledDate
+    floorOrigin, floorDest, selectedFurniture, selectedServices, scheduledDate,
+    originLatLng, destinationLatLng
   ]);
 
   // Handle count increments/decrements
@@ -295,6 +325,12 @@ export default function QuoteCalculator({
     // Validation
     const stepErrors: string[] = [];
     if (step === 1) {
+      if (!originAddress.trim()) {
+        stepErrors.push('Debe ingresar la dirección específica de origen.');
+      }
+      if (!destinationAddress.trim()) {
+        stepErrors.push('Debe ingresar la dirección específica de destino.');
+      }
       if (!origin || !destination) {
         stepErrors.push('Debe seleccionar origen y destino válidos.');
       }
@@ -353,6 +389,8 @@ export default function QuoteCalculator({
       phone,
       originDept: origin,
       destDept: destination,
+      originAddress: originAddress || undefined,
+      destinationAddress: destinationAddress || undefined,
       moveSize,
       furnitureList: Object.entries(selectedFurniture).map(([itemId, countVal]) => ({ itemId, count: countVal as number })),
       servicesSelected: selectedServices,
@@ -374,6 +412,10 @@ export default function QuoteCalculator({
   const resetForm = () => {
     setStep(1);
     setSuccess(false);
+    setOriginAddress('');
+    setDestinationAddress('');
+    setOriginLatLng(null);
+    setDestinationLatLng(null);
     setSelectedFurniture({
       sofa_3c: 1,
       cama_mat: 1,
@@ -491,11 +533,11 @@ export default function QuoteCalculator({
                   <meta itemProp="address" content={activeBrand.address} />
                 </span>
                 <span itemProp="description" className="hidden">
-                  Cotización estimada de mudanzas y fletes por carretera desde {activeOriginDept?.name} hacia {activeDestDept?.name} provista por {activeBrand.name}.
+                  Cotización estimada de mudanzas por carretera desde {activeOriginDept?.name} hacia {activeDestDept?.name} provista por {activeBrand.name}.
                 </span>
 
-                <p className="text-xs text-gray-400 font-extrabold uppercase tracking-wider" itemProp="name">
-                  RESUMEN DEL PRESUPUESTO ESTIMADO
+                <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider" itemProp="name">
+                  RESUMEN DE SOLICITUD LOGÍSTICA
                 </p>
                 <div className="flex justify-between items-center mt-2 border-b border-gray-100 pb-2">
                   <span className="text-xs text-gray-600">Ruta ({activeOriginDept?.name} ➔ {activeDestDept?.name})</span>
@@ -505,9 +547,11 @@ export default function QuoteCalculator({
                   <span className="text-xs text-gray-600">Volumen ({totalVolumePoints} pts)</span>
                   <span className="text-xs font-bold text-gray-900">Tamaño {moveSize.toUpperCase()}</span>
                 </div>
-                <div className="flex justify-between items-center mt-3 text-emerald-800">
-                  <span className="text-sm font-bold">TOTAL ESTIMADO</span>
-                  <span className="text-xl font-black">${estimatedCost.toLocaleString('es-AR')}</span>
+                <div className="flex justify-between items-center mt-3 text-emerald-800 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
+                  <span className="text-xs font-black uppercase">Volumen Estimado</span>
+                  <span className="text-base font-black">
+                    {Math.round((totalVolumePoints * 0.12 + 1.2) * 10) / 10 || 1.5} m³
+                  </span>
                 </div>
               </div>
             </div>
@@ -589,33 +633,51 @@ export default function QuoteCalculator({
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Origin */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-extrabold text-gray-700 block">DEPARTAMENTO DE ORIGEN</label>
-                    <select
-                      value={origin}
-                      onChange={(e) => setOrigin(e.target.value)}
-                      className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-800 font-medium"
-                    >
-                      {DEPARTMENTS.map(dept => (
-                        <option key={dept.id} value={dept.id}>{dept.name}</option>
-                      ))}
-                    </select>
-                    <p className="text-[10px] text-gray-400 mt-1">Multiplicador por zona: x{DEPARTMENTS.find(d => d.id === origin)?.baseRateMultiplier}</p>
+                  <div className="space-y-1">
+                    <AddressAutocomplete
+                      label="Dirección de Origen"
+                      placeholder={activeBrand.id === 'miranda' ? "Eje: Av. Cabildo 2200, Belgrano, CABA" : "Eje: Av. Colón 450, Mendoza"}
+                      value={originAddress}
+                      onChange={setOriginAddress}
+                      onSelectAddress={(addr, deptId, lat, lng) => {
+                        setOriginAddress(addr);
+                        setOrigin(deptId);
+                        if (lat !== undefined && lng !== undefined) {
+                          setOriginLatLng({ lat, lng });
+                        } else {
+                          setOriginLatLng(null);
+                        }
+                      }}
+                      brandId={activeBrand.id}
+                    />
+                    <div className="flex justify-between items-center text-[10px] text-gray-400 px-1 pt-1">
+                      <span>Zona detectada: <strong className="text-gray-600 font-bold">{DEPARTMENTS.find(d => d.id === origin)?.name}</strong></span>
+                      <span>Tarifa base: <strong className="text-gray-600 font-bold">x{DEPARTMENTS.find(d => d.id === origin)?.baseRateMultiplier}</strong></span>
+                    </div>
                   </div>
 
                   {/* Destination */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-extrabold text-gray-700 block">DEPARTAMENTO DE DESTINO</label>
-                    <select
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-800 font-medium"
-                    >
-                      {DEPARTMENTS.map(dept => (
-                        <option key={dept.id} value={dept.id}>{dept.name}</option>
-                      ))}
-                    </select>
-                    <p className="text-[10px] text-gray-400 mt-1">Multiplicador por zona: x{DEPARTMENTS.find(d => d.id === destination)?.baseRateMultiplier}</p>
+                  <div className="space-y-1">
+                    <AddressAutocomplete
+                      label="Dirección de Destino"
+                      placeholder={activeBrand.id === 'miranda' ? "Eje: Av. Santa Fe 3200, Palermo, CABA" : "Eje: Panamericana 2501, Godoy Cruz, Mendoza"}
+                      value={destinationAddress}
+                      onChange={setDestinationAddress}
+                      onSelectAddress={(addr, deptId, lat, lng) => {
+                        setDestinationAddress(addr);
+                        setDestination(deptId);
+                        if (lat !== undefined && lng !== undefined) {
+                          setDestinationLatLng({ lat, lng });
+                        } else {
+                          setDestinationLatLng(null);
+                        }
+                      }}
+                      brandId={activeBrand.id}
+                    />
+                    <div className="flex justify-between items-center text-[10px] text-gray-400 px-1 pt-1">
+                      <span>Zona detectada: <strong className="text-gray-600 font-bold">{DEPARTMENTS.find(d => d.id === destination)?.name}</strong></span>
+                      <span>Tarifa base: <strong className="text-gray-600 font-bold">x{DEPARTMENTS.find(d => d.id === destination)?.baseRateMultiplier}</strong></span>
+                    </div>
                   </div>
                 </div>
 
@@ -942,7 +1004,7 @@ export default function QuoteCalculator({
                 <div>
                   <h3 className="text-sm font-extrabold text-gray-800 mb-2">ELIGE EL NIVEL DE SERVICIO</h3>
                   <p className="text-xs text-gray-400 mb-4">
-                    Selecciona si necesitas flete de solo traslado, operarios para carga y descarga o embalajes profesionales de seguridad.
+                    Selecciona si necesitas servicio de solo traslado, operarios para carga y descarga o embalajes profesionales de seguridad.
                   </p>
                 </div>
 
@@ -973,7 +1035,9 @@ export default function QuoteCalculator({
                         </div>
                         <div className="text-right whitespace-nowrap self-end sm:self-center">
                           <p className="text-xs font-bold text-gray-400">{srv.priceDetail}</p>
-                          <p className="text-base font-black text-gray-900 mt-1">+${srv.basePrice.toLocaleString('es-AR')}</p>
+                          <span className="inline-block text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-100 px-2 py-0.5 rounded mt-1.5 uppercase tracking-wide">
+                            Disponible
+                          </span>
                         </div>
                       </div>
                     );
@@ -1005,7 +1069,7 @@ export default function QuoteCalculator({
                 <div>
                   <h3 className="text-sm font-extrabold text-gray-800 mb-2">DATOS DE CONTACTO Y RESERVA</h3>
                   <p className="text-xs text-gray-400 mb-4">
-                    Ingresa tus datos para registrar formalmente tu flete. Te mostraremos tu cotización definitiva al instante.
+                    Ingresa tus datos para registrar formalmente tu traslado. Te mostraremos tu cotización definitiva al instante.
                   </p>
                 </div>
 
@@ -1015,7 +1079,7 @@ export default function QuoteCalculator({
                   <div>
                     <span className="font-extrabold text-emerald-800 block text-xs">✔ Tarifa Protegida y Congelada Sin Sorpresas</span>
                     <span className="text-[11px] text-emerald-700 leading-relaxed font-medium mt-0.5 block">
-                      Al solicitar tu presupuesto hoy, congelamos el valor de tu flete ante variaciones de precios locales en Mendoza. Garantizamos transparencia absoluta.
+                      Al solicitar tu presupuesto hoy, congelamos el valor de tu traslado ante variaciones de precios locales en Mendoza. Garantizamos transparencia absoluta.
                     </span>
                   </div>
                 </div>
@@ -1164,15 +1228,26 @@ export default function QuoteCalculator({
                   />
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-100 border border-slate-200/50 flex flex-col sm:flex-row justify-between items-center gap-2">
-                  <div className="text-left">
-                    <span className="text-[10px] text-gray-400 font-semibold uppercase leading-none">PRESUPUESTO WEB PRELIMINAR</span>
-                    <p className="text-xl font-black text-gray-900 mt-1">${estimatedCost.toLocaleString('es-AR')}</p>
-                  </div>
-                  <p className="text-[10px] text-gray-400 max-w-sm text-center sm:text-right">
-                    *Este cálculo preliminar incluye seguro de carga estándar. Se formalizará con un llamado telefónico de validación técnica de bultos.
-                  </p>
-                </div>
+                {(() => {
+                  const estimatedM3 = Math.round((totalVolumePoints * 0.12 + 1.2) * 10) / 10 || 1.5;
+                  return (
+                    <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                      <div className="text-left space-y-1">
+                        <span className="text-[10px] text-amber-800 font-extrabold uppercase tracking-wider block leading-none">VOLUMEN LOGÍSTICO ESTIMADO</span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-2xl font-black text-gray-900">{estimatedM3} m³</span>
+                          <span className="text-[10px] font-bold text-gray-500 uppercase">({totalVolumePoints} unidades de volumen)</span>
+                        </div>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider block leading-none">CATEGORÍA DE TRASLADO</span>
+                        <p className="text-xs font-black text-gray-800 mt-1.5 uppercase">
+                          {moveSize === 'small' ? 'Personal pequeña / Utilitaria' : moveSize === 'medium' ? 'Familiar estándar / Mediana' : 'Residencial grande / Completa'}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <div className="flex justify-between pt-2">
                   <button
@@ -1187,7 +1262,7 @@ export default function QuoteCalculator({
                     type="submit"
                     className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs rounded-xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
                   >
-                    Confirmar Mi Cotización Gratis y Congelar Precio
+                    Confirmar Mi Solicitud de Volumen y Cotizar por WhatsApp
                   </button>
                 </div>
               </form>

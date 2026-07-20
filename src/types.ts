@@ -22,23 +22,30 @@ export interface ServiceItem {
   features: string[];
 }
 
+export type FurnitureCategory = 'living' | 'dormitorio' | 'cocina' | 'otros';
+export type BrandId = 'mendoza' | 'miranda' | 'empresas';
+export type MoveSize = 'chico' | 'mediano' | 'grande';
+export type LeadStatus = 'new' | 'contacted' | 'completed' | 'cancelled';
+
 export interface FurnitureItem {
   id: string;
   name: string;
-  category: 'living' | 'dormitorio' | 'cocina' | 'otros';
+  category: FurnitureCategory;
   volumePoints: number; // For volume calculation
 }
 
 export interface QuoteLead {
   id: string;
   createdAt: string;
-  brand: 'mendoza' | 'miranda' | 'empresas';
+  brand: BrandId;
   customerName: string;
   email: string;
   phone: string;
   originDept: string;
   destDept: string;
-  moveSize: 'chico' | 'mediano' | 'grande';
+  originAddress?: string;
+  destinationAddress?: string;
+  moveSize: MoveSize;
   furnitureList: { itemId: string; count: number }[];
   servicesSelected: string[];
   distanceKm: number;
@@ -48,12 +55,12 @@ export interface QuoteLead {
   floorDest: number;
   scheduledDate: string;
   estimatedCost: number;
-  status: 'new' | 'contacted' | 'completed' | 'cancelled';
+  status: LeadStatus;
   notes?: string;
 }
 
 export interface BrandConfig {
-  id: 'mendoza' | 'miranda' | 'empresas';
+  id: BrandId;
   name: string;
   tagline: string;
   primaryColor: string;

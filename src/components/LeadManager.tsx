@@ -55,7 +55,7 @@ export default function LeadManager({ leads, onUpdateLeadStatus, onDeleteLead }:
   const getWhatsAppMessage = (lead: QuoteLead) => {
     const originName = DEPARTMENTS.find(d => d.id === lead.originDept)?.name || lead.originDept;
     const destName = DEPARTMENTS.find(d => d.id === lead.destDept)?.name || lead.destDept;
-    const servicesName = lead.servicesSelected.map(id => SERVICES.find(s => s.id === id)?.name).join(', ') || 'Flete Estándar';
+    const servicesName = lead.servicesSelected.map(id => SERVICES.find(s => s.id === id)?.name).join(', ') || 'Mudanza Básica';
     
     return `Hola ${lead.customerName}! Te escribimos de Mudanzas Mendoza. Recibimos tu cotización online para el día ${lead.scheduledDate}. 
 
@@ -365,7 +365,7 @@ export default function LeadManager({ leads, onUpdateLeadStatus, onDeleteLead }:
                                       ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' 
                                       : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                   }`}>
-                                    {isSaturated ? `⚠️ SATURADA (${countNum} fletes)` : `🟢 DISPONIBLE (${countNum} flete)`}
+                                    {isSaturated ? `⚠️ SATURADA (${countNum} mudanzas)` : `🟢 DISPONIBLE (${countNum} mudanza)`}
                                   </span>
                                 </div>
                               </div>

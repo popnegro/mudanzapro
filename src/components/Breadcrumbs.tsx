@@ -1,12 +1,12 @@
 import React from 'react';
 import { Home, ChevronRight, Sparkles, Globe } from 'lucide-react';
-import { BrandConfig } from '../types';
+import { BrandConfig, BrandId } from '../types';
 
 interface BreadcrumbsProps {
   activeBrand: BrandConfig;
-  activeBrandId: 'mendoza' | 'miranda' | 'empresas';
+  activeBrandId: BrandId;
   activePage: string;
-  onBrandSelect: (brandId: 'mendoza' | 'miranda' | 'empresas') => void;
+  onBrandSelect: (brandId: BrandId) => void;
   onPageSelect: (pageName: string) => void;
 }
 

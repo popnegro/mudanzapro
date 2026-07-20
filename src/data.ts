@@ -4,7 +4,7 @@ export const BRANDS: Record<string, BrandConfig> = {
   mendoza: {
     id: 'mendoza',
     name: 'Mudanzas Mendoza',
-    tagline: 'Expertos en Mudanzas Locales y Fletes en la Provincia de Mendoza',
+    tagline: 'Expertos en Mudanzas Locales y Relocalizaciones en la Provincia de Mendoza',
     primaryColor: 'from-amber-600 to-orange-500',
     secondaryColor: 'amber-600',
     accentColor: 'orange',
@@ -71,7 +71,7 @@ export const DEPARTMENTS: Department[] = [
     slug: 'godoy-cruz',
     baseRateMultiplier: 1.05,
     featuredNeighborhoods: ['Palmares', 'Villa Marini', 'Barrio Solares', 'Parque General San Martín', 'Las Tortugas'],
-    description: 'Uno de los departamentos más poblados y de mayor demanda de fletes residenciales. Excelente conectividad por el Corredor del Oeste y Av. San Martín.',
+    description: 'Uno de los departamentos más poblados y de mayor demanda de traslados residenciales. Excelente conectividad por el Corredor del Oeste y Av. San Martín.',
     movingStats: {
       monthlyVolume: 145,
       avgCost: 118000,
@@ -149,7 +149,7 @@ export const DEPARTMENTS: Department[] = [
     slug: 'general-alvear',
     baseRateMultiplier: 1.5,
     featuredNeighborhoods: ['Alvear Oeste', 'Bowen', 'San Pedro del Atuel', 'Ciudad Alvear'],
-    description: 'Zona Sur productiva. Alta demanda de traslados agrícolas, fletes interurbanos y mudanzas de larga distancia nacional conectando con La Pampa y San Luis.',
+    description: 'Zona Sur productiva. Alta demanda de traslados agrícolas, traslados interurbanos y mudanzas de larga distancia nacional conectando con La Pampa y San Luis.',
     movingStats: {
       monthlyVolume: 15,
       avgCost: 390000,
@@ -175,7 +175,7 @@ export const DEPARTMENTS: Department[] = [
     slug: 'tunuyan',
     baseRateMultiplier: 1.25,
     featuredNeighborhoods: ['Tunuyán Centro', 'Vista Flores', 'Los Chacayes', 'Colonia Las Rosas'],
-    description: 'Corazón del Valle de Uco. Gran demanda de fletes especializados para el traslado de insumos de bodegas boutique y mudanzas residenciales de personal enológico de alto nivel.',
+    description: 'Corazón del Valle de Uco. Gran demanda de traslados especializados para el traslado de insumos de bodegas boutique y mudanzas residenciales de personal enológico de alto nivel.',
     movingStats: {
       monthlyVolume: 28,
       avgCost: 220000,
@@ -188,7 +188,7 @@ export const DEPARTMENTS: Department[] = [
     slug: 'tupungato',
     baseRateMultiplier: 1.3,
     featuredNeighborhoods: ['Tupungato Centro', 'Gualtallary', 'San José', 'El Peral'],
-    description: 'Zona vitivinícola de altísima gama. Fletes de precisión para bodegas en el distrito de Gualtallary y mudanzas en áreas de pendientes pronunciadas.',
+    description: 'Zona vitivinícola de altísima gama. Mudanzas de precisión para bodegas en el distrito de Gualtallary y mudanzas en áreas de pendientes pronunciadas.',
     movingStats: {
       monthlyVolume: 19,
       avgCost: 240000,
@@ -212,8 +212,8 @@ export const DEPARTMENTS: Department[] = [
 
 export const SERVICES: ServiceItem[] = [
   {
-    id: 'flete_basico',
-    name: 'Flete Estándar',
+    id: 'mudanza_basica',
+    name: 'Mudanza Básica (Solo Transporte)',
     icon: 'Truck',
     description: 'Transporte de puerta a puerta en camión habilitado. El cliente se encarga de la carga y descarga.',
     basePrice: 45000,
@@ -301,7 +301,7 @@ export const SERVICES: ServiceItem[] = [
     icon: 'Award',
     description: 'Manipulación experta de pianos de cola y verticales, cajas fuertes, motores y maquinaria que requiere trineos y fundas acolchadas especiales.',
     basePrice: 85000,
-    priceDetail: 'Flete para bultos pesados de gran porte',
+    priceDetail: 'Traslado para bultos pesados de gran porte',
     features: [
       'Uso de carros con ruedas de goma anti-huella y trineos de estiba',
       'Fundas de lona impermeable y acolchados de alta protección',
@@ -389,7 +389,7 @@ export const INITIAL_LEADS: QuoteLead[] = [
       { itemId: 'lavarropas', count: 1 },
       { itemId: 'caja_m', count: 8 }
     ],
-    servicesSelected: ['flete_basico'],
+    servicesSelected: ['mudanza_basica'],
     distanceKm: 9,
     hasElevatorOrigin: false,
     hasElevatorDest: false,
@@ -398,7 +398,7 @@ export const INITIAL_LEADS: QuoteLead[] = [
     scheduledDate: '2026-07-24',
     estimatedCost: 82000,
     status: 'contacted',
-    notes: 'Confirmó que ya tiene todo embalado en cajas. Necesita flete estándar pero pidió ayuda a los choferes para cargar heladera grande.'
+    notes: 'Confirmó que ya tiene todo embalado en cajas. Necesita transporte estándar pero pidió ayuda a los choferes para cargar heladera grande.'
   },
   {
     id: 'lead-3',
@@ -443,7 +443,7 @@ export const INITIAL_LEADS: QuoteLead[] = [
       { itemId: 'microondas', count: 1 },
       { itemId: 'caja_m', count: 5 }
     ],
-    servicesSelected: ['flete_basico'],
+    servicesSelected: ['mudanza_basica'],
     distanceKm: 6,
     hasElevatorOrigin: false,
     hasElevatorDest: true,
@@ -480,7 +480,7 @@ export const MENDOZA_FAQ = [
 ];
 
 export const CHECKLIST_STEPS = [
-  { id: 'check-1', category: '4 Semanas Antes', text: 'Descartar o donar lo que no uses. Disminuye el volumen de tu flete y ahorra dinero.' },
+  { id: 'check-1', category: '4 Semanas Antes', text: 'Descartar o donar lo que no uses. Disminuye el volumen de tu traslado y ahorra dinero.' },
   { id: 'check-2', category: '4 Semanas Antes', text: 'Reunir documentos importantes (DNI, contratos, facturas de muebles) en una carpeta segura.' },
   { id: 'check-3', category: '2 Semanas Antes', text: 'Reservar el día de mudanza con nosotros. En Mendoza, los fines de semana de fin de mes son de alta demanda.' },
   { id: 'check-4', category: '2 Semanas Antes', text: 'Conseguir cajas resistentes de cartón, cinta de embalar ancha y pluriball. (O solicita nuestro combo de embalaje).' },
@@ -522,51 +522,6 @@ export const RECOMMENDED_COMPANIES: RecommendedCompany[] = [
     isFeatured: true,
     minPrice: 120000,
     badge: 'Especialista en Pianos & Ruta'
-  },
-  {
-    id: 'emp-fletes-elvasco',
-    name: 'Fletes y Mudanzas El Vasco',
-    rating: 4.7,
-    reviewsCount: 115,
-    phone: '+54 261 590-2210',
-    whatsappMessage: 'Hola Vasco, vi tu empresa recomendada en el portal. Necesito un flete rápido y económico en Mendoza.',
-    location: 'Calle Beltrán 450, Godoy Cruz, Mendoza',
-    specialties: ['Fletes Rápidos', 'Pequeños Envios', 'Hogar Económico'],
-    zones: ['Gran Mendoza'],
-    features: ['Atendido por su dueño', 'Rapidez Inmediata', 'Ayuda en Carga Básica'],
-    isFeatured: false,
-    minPrice: 45000,
-    badge: 'Flete Express Económico'
-  },
-  {
-    id: 'emp-cuyo-log',
-    name: 'Cuyo Logística & Traslados',
-    rating: 4.6,
-    reviewsCount: 78,
-    phone: '+54 2622 411-902',
-    whatsappMessage: 'Hola Cuyo Logística, quiero cotizar fletes especializados para fincas / bodegas o mudanza de larga distancia.',
-    location: 'Ruta Nacional 40, Tunuyán, Mendoza',
-    specialties: ['Bodegas e Insumos', 'Fincas y Campos', 'Larga Distancia'],
-    zones: ['Valle de Uco', 'Zona Sur'],
-    features: ['Camión con Rampa Hidráulica', 'Factura A / B2B', 'Remitentes Autorizados'],
-    isFeatured: false,
-    minPrice: 110000,
-    badge: 'Especialista Bodegas / Sur'
-  },
-  {
-    id: 'emp-altura-pro',
-    name: 'Mudanzas Altura Mendoza',
-    rating: 4.9,
-    reviewsCount: 94,
-    phone: '+54 261 388-1050',
-    whatsappMessage: 'Hola Mudanzas Altura Mendoza, vi su ficha en el portal. Necesito izar muebles pesados en un edificio céntrico.',
-    location: 'Av. Colón 320, Mendoza Capital, Mendoza',
-    specialties: ['Izamiento Exterior', 'Mudanza en Edificios', 'Desarme de Muebles'],
-    zones: ['Gran Mendoza'],
-    features: ['Certificación en Altura', 'Seguridad Civil Activa', 'Grúas y Escaleras Mecánicas'],
-    isFeatured: true,
-    badge: 'Especialista Izajes de Muebles',
-    minPrice: 95000
   }
 ];
 

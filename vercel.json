@@ -44,12 +44,33 @@
           "value": "*"
         }
       ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=86400, stale-while-revalidate=3600"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
       "source": "/api/schema",
       "destination": "/api/schema"
+    },
+    {
+      "source": "/api/sitemap",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
     },
     {
       "source": "/(.*)",

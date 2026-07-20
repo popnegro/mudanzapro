@@ -87,7 +87,7 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
             SITUADO EN EL DIRECTORIO DE EMPRESAS (JERARQUÍA DE ZONAS)
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-            Directorio de Fletes Local de Mendoza
+            Directorio de Mudanzas Local de Mendoza
           </h2>
           <p className="text-sm text-gray-500 max-w-xl mx-auto">
             Hacemos mudanzas locales en todos los distritos del Gran Mendoza, Valle de Uco y Zona Sur. Filtra por zona según tu punto de origen.
@@ -96,21 +96,24 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
 
         {/* Region Filter Tabs */}
         <div className="flex justify-center">
-          <div className="inline-flex bg-white p-1.5 rounded-2xl border border-gray-200/60 shadow-xs max-w-full overflow-x-auto gap-1">
+          <div className="inline-flex bg-white p-1.5 rounded-2xl border border-gray-200/60 shadow-xs max-w-full overflow-x-auto gap-1" role="tablist" aria-label="Filtrar por región geográfica">
             {REGIONS.map(reg => {
               const isSelected = selectedRegion === reg.id;
               return (
                 <button
                   key={reg.id}
                   onClick={() => handleRegionChange(reg.id)}
+                  role="tab"
+                  aria-selected={isSelected}
                   className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all duration-200 shrink-0 cursor-pointer ${
                     isSelected
                       ? 'bg-amber-500 text-gray-950 shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 hover:bg-slate-50'
                   }`}
+                  aria-label={`Ver departamentos en región ${reg.name}`}
                 >
                   {reg.name}
-                  <span className="block text-[9px] font-medium opacity-80">{reg.desc}</span>
+                  <span className="block text-[9px] font-medium opacity-80" aria-hidden="true">{reg.desc}</span>
                 </button>
               );
             })}
@@ -128,21 +131,24 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
                 {filteredDepts.length} Zonas listas
               </span>
             </div>
-            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1" role="tablist" aria-label="Seleccionar departamento de Mendoza">
               {filteredDepts.map(dept => {
                 const isSelected = dept.id === selectedDeptId;
                 return (
                   <button
                     key={dept.id}
                     onClick={() => handleDeptSelect(dept.id)}
+                    role="tab"
+                    aria-selected={isSelected}
                     className={`w-full text-left p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
                       isSelected
                         ? 'bg-white border-amber-500 shadow-md ring-1 ring-amber-500/10'
                         : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-2xs'
                     }`}
+                    aria-label={`Ver informe de movilidad local para departamento de ${dept.name}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-xl ${isSelected ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-500'}`}>
+                      <div className={`p-2 rounded-xl ${isSelected ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-500'}`} aria-hidden="true">
                         <MapPin className="w-4 h-4" />
                       </div>
                       <div>
@@ -150,7 +156,7 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
                         <p className="text-[10px] text-gray-400">Ver estadísticas y barrios destacados</p>
                       </div>
                     </div>
-                    <ArrowRight className={`w-4 h-4 transition ${isSelected ? 'translate-x-1 text-amber-600' : 'text-gray-300'}`} />
+                    <ArrowRight className={`w-4 h-4 transition ${isSelected ? 'translate-x-1 text-amber-600' : 'text-gray-300'}`} aria-hidden="true" />
                   </button>
                 );
               })}
@@ -163,11 +169,15 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
               <div>
                 <span className="text-[10px] font-black text-amber-600 uppercase">INFORME DE MOVILIDAD LOCAL</span>
                 <h3 className="text-2xl font-black text-gray-900 mt-0.5">{activeDept.name}</h3>
-                <p className="text-xs text-gray-500 mt-1">Multiplicador tarifario base: x{activeDept.baseRateMultiplier}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Logística y Conectividad: {activeDept.baseRateMultiplier <= 1.0 ? 'Urbana Directa' : activeDept.baseRateMultiplier <= 1.2 ? 'Interurbana Fluida' : 'Larga Distancia Especial'}
+                </p>
               </div>
               <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-gray-400 font-bold leading-none">COSTO PROM. MUDANZA</p>
-                <p className="text-lg font-black text-gray-800 mt-1">${activeDept.movingStats.avgCost.toLocaleString('es-AR')}</p>
+                <p className="text-[10px] text-gray-400 font-bold leading-none text-right uppercase">RANGO DE INVERSIÓN</p>
+                <p className="text-sm font-black text-emerald-700 mt-1 uppercase text-right">
+                  {activeDept.movingStats.avgCost < 120000 ? 'Económico / Local' : activeDept.movingStats.avgCost < 250000 ? 'Estándar / Intermedio' : 'Completo / Especial'}
+                </p>
               </div>
             </div>
 

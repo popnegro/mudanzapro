@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { RECOMMENDED_COMPANIES, DEPARTMENTS } from '../data';
-import { RecommendedCompany } from '../types';
+import { RecommendedCompany, BrandId } from '../types';
 import { 
   Star, MapPin, Phone, MessageSquare, ShieldCheck, 
   Search, SlidersHorizontal, CheckCircle, Sparkles, Truck, 
   Layers, ArrowRight, DollarSign, Award, HelpCircle, Globe
 } from 'lucide-react';
+import LazyImage from './LazyImage';
 
 const getCompanyImageUrl = (id: string): string => {
   switch (id) {
@@ -13,7 +14,7 @@ const getCompanyImageUrl = (id: string): string => {
       return 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500&auto=format&fit=crop&q=80';
     case 'emp-miranda-mza':
       return 'https://images.unsplash.com/photo-1512756290469-ec0602047974?w=500&auto=format&fit=crop&q=80';
-    case 'emp-fletes-elvasco':
+    case 'emp-mudanzas-elvasco':
       return 'https://images.unsplash.com/photo-1516575150278-77136aed6920?w=500&auto=format&fit=crop&q=80';
     case 'emp-cuyo-log':
       return 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&fit=crop&q=80';
@@ -26,7 +27,7 @@ const getCompanyImageUrl = (id: string): string => {
 interface RecommendedCompaniesProps {
   selectedGeographicZone?: string;
   onZoneSelect?: (zoneName: string) => void;
-  onBrandSelect?: (brandId: 'mendoza' | 'miranda' | 'empresas') => void;
+  onBrandSelect?: (brandId: BrandId) => void;
   onViewModeChange?: (mode: 'user' | 'dashboard') => void;
 }
 
@@ -62,7 +63,7 @@ export default function RecommendedCompanies({
       if (c.specialties.some(s => s.toLowerCase().includes('piano'))) specsSet.add('Traslado de Pianos');
       if (c.specialties.some(s => s.toLowerCase().includes('larga'))) specsSet.add('Larga Distancia');
       if (c.specialties.some(s => s.toLowerCase().includes('hogar') || s.toLowerCase().includes('residencial'))) specsSet.add('Hogar');
-      if (c.specialties.some(s => s.toLowerCase().includes('económico') || s.toLowerCase().includes('flete'))) specsSet.add('Económico');
+      if (c.specialties.some(s => s.toLowerCase().includes('económico') || s.toLowerCase().includes('básico') || s.toLowerCase().includes('express'))) specsSet.add('Económico');
     });
     return Array.from(specsSet);
   }, []);
@@ -128,7 +129,7 @@ export default function RecommendedCompanies({
         } else if (selectedSpecialty === 'Hogar') {
           matchesSpecialty = company.specialties.some(s => s.toLowerCase().includes('hogar') || s.toLowerCase().includes('residencial'));
         } else if (selectedSpecialty === 'Económico') {
-          matchesSpecialty = company.specialties.some(s => s.toLowerCase().includes('económico') || s.toLowerCase().includes('flete'));
+          matchesSpecialty = company.specialties.some(s => s.toLowerCase().includes('económico') || s.toLowerCase().includes('básico') || s.toLowerCase().includes('express'));
         }
       }
 
@@ -192,6 +193,7 @@ export default function RecommendedCompanies({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar por empresa, barrio o especialidad (ej. pianos)..."
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all shadow-3xs"
+                aria-label="Buscar empresas transportistas por nombre, barrio o especialidad"
               />
               {matchedRegionsFromSearch.length > 0 && (
                 <div className="absolute left-0 right-0 top-full mt-1.5 bg-amber-50 border border-amber-200 rounded-xl p-2.5 shadow-md z-10 text-[10px] text-amber-900 font-bold flex items-center gap-1.5 animate-fade-in">
@@ -214,9 +216,10 @@ export default function RecommendedCompanies({
                   checked={showOnlyFeatured}
                   onChange={(e) => setShowOnlyFeatured(e.target.checked)}
                   className="w-4 h-4 rounded-md border-gray-300 text-amber-500 focus:ring-amber-500/20 cursor-pointer"
+                  aria-label="Filtrar para mostrar únicamente empresas recomendadas y verificadas"
                 />
                 <span className="flex items-center gap-1">
-                  <Award className="w-4 h-4 text-amber-500" />
+                  <Award className="w-4 h-4 text-amber-500" aria-hidden="true" />
                   Solo empresas verificadas/destacadas
                 </span>
               </label>
@@ -230,14 +233,16 @@ export default function RecommendedCompanies({
             {/* Zone Filter */}
             <div className="space-y-2">
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Región de Cobertura</span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtros de región de cobertura">
                 <button
                   onClick={() => setSelectedZone('all')}
+                  aria-pressed={selectedZone === 'all'}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     selectedZone === 'all'
                       ? 'bg-gray-900 text-white shadow-2xs'
                       : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                   }`}
+                  aria-label="Mostrar todas las zonas de cobertura"
                 >
                   Todas las zonas
                 </button>
@@ -245,11 +250,13 @@ export default function RecommendedCompanies({
                   <button
                     key={zone}
                     onClick={() => setSelectedZone(zone)}
+                    aria-pressed={selectedZone === zone}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       selectedZone === zone
                         ? 'bg-amber-500 text-gray-950 shadow-2xs'
                         : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                     }`}
+                    aria-label={`Filtrar por cobertura de zona: ${zone}`}
                   >
                     {zone}
                   </button>
@@ -260,14 +267,16 @@ export default function RecommendedCompanies({
             {/* Specialty Filter */}
             <div className="space-y-2">
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Especialidad de Servicio</span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtros de especialidad de servicio">
                 <button
                   onClick={() => setSelectedSpecialty('all')}
+                  aria-pressed={selectedSpecialty === 'all'}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     selectedSpecialty === 'all'
                       ? 'bg-gray-900 text-white shadow-2xs'
                       : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                   }`}
+                  aria-label="Mostrar todos los tipos de especialidad de servicios"
                 >
                   Todos los servicios
                 </button>
@@ -275,11 +284,13 @@ export default function RecommendedCompanies({
                   <button
                     key={spec}
                     onClick={() => setSelectedSpecialty(spec)}
+                    aria-pressed={selectedSpecialty === spec}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       selectedSpecialty === spec
                         ? 'bg-amber-500 text-gray-950 shadow-2xs'
                         : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                     }`}
+                    aria-label={`Filtrar por especialidad: ${spec}`}
                   >
                     {spec}
                   </button>
@@ -296,6 +307,8 @@ export default function RecommendedCompanies({
               <div 
                 key={company.id}
                 id={`company-card-${company.id}`}
+                role="region"
+                aria-label={`Empresa de mudanzas verificada: ${company.name}`}
                 className={`relative flex flex-col justify-between bg-white rounded-3xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
                   company.isFeatured 
                     ? 'border-amber-400/80 shadow-md shadow-amber-500/[0.02] ring-1 ring-amber-400/20' 
@@ -304,9 +317,9 @@ export default function RecommendedCompanies({
               >
                 {/* Card Header Image */}
                 <div className="relative h-40 w-full overflow-hidden bg-slate-100">
-                  <img 
+                  <LazyImage 
                     src={getCompanyImageUrl(company.id)} 
-                    alt={company.name} 
+                    alt={`Flota y personal de la empresa de mudanzas ${company.name}`} 
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   />
@@ -372,7 +385,7 @@ export default function RecommendedCompanies({
                   {/* Specialty Pills */}
                   <div className="space-y-2">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Servicios Clave</span>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1" aria-label={`Especialidades ofrecidas por ${company.name}`}>
                       {company.specialties.map(spec => (
                         <span 
                           key={spec} 
@@ -387,10 +400,10 @@ export default function RecommendedCompanies({
                   {/* Key Features checklist */}
                   <div className="space-y-2 pt-2">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Garantía & Seguridad</span>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-1.5" aria-label={`Garantías y seguridad de ${company.name}`}>
                       {company.features.map((feat, idx) => (
                         <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -416,8 +429,9 @@ export default function RecommendedCompanies({
                         onBrandSelect(targetBrand);
                       }}
                       className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-amber-500 text-gray-950 hover:bg-amber-400 text-xs font-black rounded-xl transition duration-200 cursor-pointer shadow-3xs"
+                      aria-label={`Visitar sitio web dedicado de la empresa ${company.name}`}
                     >
-                      <Globe className="w-3.5 h-3.5" />
+                      <Globe className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>Visitar Sitio Web Dedicado</span>
                     </button>
                   )}
@@ -429,8 +443,9 @@ export default function RecommendedCompanies({
                       id={`call-btn-${company.id}`}
                       href={`tel:${company.phone.replace(/\s+/g, '')}`}
                       className="flex items-center justify-center gap-1.5 py-2.5 bg-white border border-gray-200 hover:border-gray-300 hover:bg-slate-100 text-gray-800 text-xs font-black rounded-xl transition cursor-pointer"
+                      aria-label={`Llamar telefónicamente a ${company.name}`}
                     >
-                      <Phone className="w-3.5 h-3.5 text-gray-500" />
+                      <Phone className="w-3.5 h-3.5 text-gray-500" aria-hidden="true" />
                       <span>Llamar</span>
                     </a>
 
@@ -441,8 +456,9 @@ export default function RecommendedCompanies({
                       target="_blank"
                       referrerPolicy="no-referrer"
                       className="flex items-center justify-center gap-1.5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition cursor-pointer shadow-3xs hover:scale-[1.02]"
+                      aria-label={`Enviar un mensaje de WhatsApp prefijado a ${company.name}`}
                     >
-                      <MessageSquare className="w-3.5 h-3.5" />
+                      <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>WhatsApp</span>
                     </a>
                   </div>
@@ -470,6 +486,7 @@ export default function RecommendedCompanies({
                 setShowOnlyFeatured(false);
               }}
               className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold rounded-lg transition cursor-pointer"
+              aria-label="Restablecer todos los filtros y campos de búsqueda de empresas"
             >
               Restablecer Filtros
             </button>
@@ -498,6 +515,7 @@ export default function RecommendedCompanies({
                 }
               }}
               className="w-full text-center block px-5 py-3 bg-gray-900 hover:bg-gray-800 text-white text-xs font-black rounded-xl transition shadow-3xs cursor-pointer"
+              aria-label="Registrar mi empresa en el directorio oficial de Mendoza"
             >
               Registrar mi empresa
             </a>

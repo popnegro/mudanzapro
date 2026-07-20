@@ -1,10 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BrandConfig } from '../types'; // Added useRef
+import { BrandConfig, BrandId } from '../types'; // Added useRef
 import { Truck, ChevronDown, Menu, X, Globe, Calculator, Award, ClipboardList, HelpCircle, MapPin, MessageSquare, Phone, Mail, Sparkles, Star, ChevronRight } from 'lucide-react';
+import { ROUTES, getRouteById } from '../routes';
+
+const routeIcons: Record<string, { icon: React.ComponentType<any>; colorClass: string; bgClass: string; label: string }> = {
+  inicio: { icon: Globe, colorClass: 'text-amber-600', bgClass: 'bg-amber-100', label: 'Página de Inicio' },
+  calculadora: { icon: Calculator, colorClass: 'text-amber-600', bgClass: 'bg-amber-100', label: 'Cotizador de Mudanzas' },
+  servicios: { icon: Truck, colorClass: 'text-indigo-600', bgClass: 'bg-indigo-100', label: 'Servicios y Tarifas' },
+  directorio: { icon: Award, colorClass: 'text-emerald-600', bgClass: 'bg-emerald-100', label: 'Empresas Verificadas' },
+  zonas: { icon: MapPin, colorClass: 'text-rose-600', bgClass: 'bg-rose-100', label: 'Zonas de Cobertura' },
+  checklist: { icon: ClipboardList, colorClass: 'text-orange-600', bgClass: 'bg-orange-100', label: 'Checklist Organizador' },
+  faq: { icon: HelpCircle, colorClass: 'text-sky-600', bgClass: 'bg-sky-100', label: 'Preguntas Frecuentes' },
+  contacto: { icon: Phone, colorClass: 'text-teal-600', bgClass: 'bg-teal-100', label: 'Hablemos Directo' },
+};
 
 interface HeaderProps {
   activeBrand: BrandConfig;
-  onBrandChange: (brandId: 'mendoza' | 'miranda' | 'empresas') => void;
+  onBrandChange: (brandId: BrandId) => void;
   viewMode: 'user' | 'dashboard';
   onViewModeChange: (mode: 'user' | 'dashboard') => void;
   leadsCount: number;
@@ -30,28 +42,9 @@ export default function Header({
   // Helper to prefetch the correct component chunk based on target page to minimize TTI/FID/INP latency
   const handlePagePrefetch = (page: string) => {
     if (!onPrefetch) return;
-    switch (page) {
-      case 'calculadora':
-        onPrefetch('QuoteCalculator');
-        break;
-      case 'servicios':
-        onPrefetch('ServicesSection');
-        break;
-      case 'directorio':
-        onPrefetch('RecommendedCompanies');
-        onPrefetch('DepartmentsGrid');
-        break;
-      case 'zonas':
-        onPrefetch('DepartmentsGrid');
-        break;
-      case 'checklist':
-        onPrefetch('Checklist');
-        break;
-      case 'faq':
-        onPrefetch('FAQSection');
-        break;
-      default:
-        break;
+    const route = getRouteById(page);
+    if (route?.prefetchKeys) {
+      route.prefetchKeys.forEach(key => onPrefetch(key));
     }
   };
 
@@ -141,9 +134,10 @@ export default function Header({
           <button 
             onClick={() => navigateTo('inicio')}
             className="flex items-center gap-3 shrink-0 text-left cursor-pointer focus:outline-none hover:opacity-95"
+            aria-label={`Volver a la página de inicio de ${activeBrand.name}`}
           >
             <div className={`p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br ${activeBrand.primaryColor} text-white shadow-md`}>
-              <Truck className="w-5 h-5 sm:w-6 sm:h-6" />
+              <Truck className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -155,7 +149,7 @@ export default function Header({
                 </span>
               </div>
               <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs text-gray-500">
-                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 stroke-amber-400" />
+                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 stroke-amber-400" aria-hidden="true" />
                 <span className="font-semibold text-gray-800">{activeBrand.avgRating}</span>
                 <span className="hidden md:inline">({activeBrand.reviewCount} opiniones de mendocinos)</span>
                 <span className="md:hidden">({activeBrand.reviewCount} reviews)</span>
@@ -164,83 +158,22 @@ export default function Header({
           </button>
 
           {/* Desktop Navigation Links - Centered & Optimal */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[10px] xl:text-xs font-extrabold tracking-wider uppercase text-gray-500">
-            <button
-              onClick={() => navigateTo('inicio')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'inicio' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Inicio
-            </button>
-            <button
-              onClick={() => navigateTo('calculadora')}
-              onMouseEnter={() => handlePagePrefetch('calculadora')}
-              onFocus={() => handlePagePrefetch('calculadora')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'calculadora' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Calculadora
-            </button>
-            <button
-              onClick={() => navigateTo('servicios')}
-              onMouseEnter={() => handlePagePrefetch('servicios')}
-              onFocus={() => handlePagePrefetch('servicios')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'servicios' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Servicios
-            </button>
-            <button
-              onClick={() => navigateTo('directorio')}
-              onMouseEnter={() => handlePagePrefetch('directorio')}
-              onFocus={() => handlePagePrefetch('directorio')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'directorio' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Directorio
-            </button>
-            <button
-              onClick={() => navigateTo('zonas')}
-              onMouseEnter={() => handlePagePrefetch('zonas')}
-              onFocus={() => handlePagePrefetch('zonas')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'zonas' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Zonas
-            </button>
-            <button
-              onClick={() => navigateTo('checklist')}
-              onMouseEnter={() => handlePagePrefetch('checklist')}
-              onFocus={() => handlePagePrefetch('checklist')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'checklist' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Checklist
-            </button>
-            <button
-              onClick={() => navigateTo('faq')}
-              onMouseEnter={() => handlePagePrefetch('faq')}
-              onFocus={() => handlePagePrefetch('faq')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'faq' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              FAQ
-            </button>
-            <button
-              onClick={() => navigateTo('contacto')}
-              className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
-                activePage === 'contacto' ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
-              }`}
-            >
-              Contacto
-            </button>
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[10px] xl:text-xs font-extrabold tracking-wider uppercase text-gray-500" aria-label="Navegación principal">
+            {ROUTES.map((route) => (
+              <button
+                key={route.id}
+                onClick={() => navigateTo(route.id)}
+                onMouseEnter={() => handlePagePrefetch(route.id)}
+                onFocus={() => handlePagePrefetch(route.id)}
+                className={`transition-all duration-200 px-3 py-2 rounded-xl cursor-pointer ${
+                  activePage === route.id ? currentTheme.activeText : `text-gray-500 ${currentTheme.hoverText}`
+                }`}
+                aria-label={`Ir a la sección de ${route.label}`}
+                aria-current={activePage === route.id ? 'page' : undefined}
+              >
+                {route.label}
+              </button>
+            ))}
           </nav>
 
           {/* Actions & Responsive Hamburger (Right side) */}
@@ -250,8 +183,9 @@ export default function Header({
               id="call-phone"
               href={`tel:${activeBrand.phone.replace(/\s+/g, '')}`}
               className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-50 text-gray-700 transition"
+              aria-label={`Llamar telefónicamente a ${activeBrand.name} al número ${activeBrand.phone}`}
             >
-              <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
+              <Phone className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
               <div>
                 <p className="text-[9px] text-gray-400 font-bold leading-none uppercase">Llamar Ahora</p>
                 <p className="font-extrabold text-gray-900 text-xs mt-0.5">{activeBrand.phone}</p>
@@ -264,8 +198,9 @@ export default function Header({
               onMouseEnter={() => handlePagePrefetch('calculadora')}
               onFocus={() => handlePagePrefetch('calculadora')}
               className="hidden xs:flex px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-gray-950 font-black text-xs hover:from-amber-600 hover:to-amber-700 shadow-sm hover:shadow-md transition-all duration-200 uppercase tracking-wider items-center gap-1.5 ring-2 ring-amber-500/10 cursor-pointer"
+              aria-label="Calcular volumen logístico estimado de mudanza"
             >
-              <Sparkles className="w-3.5 h-3.5" /> Cotizar
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Cotizar
             </button>
 
             {/* Mobile Hamburger Button */}
@@ -274,10 +209,11 @@ export default function Header({
               ref={mobileMenuButtonRef} // Attach ref here
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition focus:outline-none cursor-pointer"
-              aria-label="Menu principal" // Add aria-label
-              aria-expanded={isMobileMenuOpen} // Add aria-expanded
+              aria-label={isMobileMenuOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-drawer-navigation"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -285,123 +221,41 @@ export default function Header({
 
       {/* Mobile Drawer Navigation (Optimal for mobile clients) */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-gray-100 bg-white shadow-lg py-5 px-6 space-y-6 animate-fade-in divide-y divide-gray-100">
         <div
           id="mobile-drawer-navigation" // Add id for ref
           ref={mobileMenuRef} // Attach ref here
           className="lg:hidden border-t border-gray-100 bg-white shadow-lg py-5 px-6 space-y-6 animate-fade-in divide-y divide-gray-100"
-          role="dialog" // Add role
-          aria-modal="true" // Add aria-modal
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú de navegación móvil"
           tabIndex={-1} // Make the div focusable for initial focus
         >
           
           {/* Primary Navigation Stack */}
           <div className="space-y-1.5">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Navegación del Portal</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3" id="mobile-nav-title">Navegación del Portal</p>
             
-            <button
-              onClick={() => navigateTo('inicio')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'inicio' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'inicio' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-gray-500'}`}>
-                <Globe className="w-4 h-4" />
-              </div>
-              <span>Página de Inicio</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('calculadora')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'calculadora' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'calculadora' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-gray-500'}`}>
-                <Calculator className="w-4 h-4" />
-              </div>
-              <span>Cotizador de Mudanzas</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('servicios')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'servicios' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'servicios' ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-gray-500'}`}>
-                <Truck className="w-4 h-4" />
-              </div>
-              <span>Servicios y Tarifas</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('directorio')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'directorio' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'directorio' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-gray-500'}`}>
-                <Award className="w-4 h-4" />
-              </div>
-              <span>Empresas Verificadas</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('zonas')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'zonas' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'zonas' ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-gray-500'}`}>
-                <MapPin className="w-4 h-4" />
-              </div>
-              <span>Zonas de Cobertura</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('checklist')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'checklist' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'checklist' ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-gray-500'}`}>
-                <ClipboardList className="w-4 h-4" />
-              </div>
-              <span>Checklist Organizador</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('faq')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'faq' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'faq' ? 'bg-sky-100 text-sky-600' : 'bg-slate-100 text-gray-500'}`}>
-                <HelpCircle className="w-4 h-4" />
-              </div>
-              <span>Preguntas Frecuentes</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => navigateTo('contacto')}
-              className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
-                activePage === 'contacto' ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
-              }`}
-            >
-              <div className={`p-2 rounded-xl ${activePage === 'contacto' ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-gray-500'}`}>
-                <Phone className="w-4 h-4" />
-              </div>
-              <span>Hablemos Directo</span>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />
-            </button>
+            {ROUTES.map((route) => {
+              const config = routeIcons[route.id] || routeIcons.inicio;
+              const IconComp = config.icon;
+              return (
+                <button
+                  key={route.id}
+                  onClick={() => navigateTo(route.id)}
+                  className={`w-full flex items-center gap-3.5 py-3 px-4 rounded-2xl text-left transition ${
+                    activePage === route.id ? 'bg-slate-100 text-gray-950 font-black' : 'hover:bg-slate-50 text-gray-700'
+                  }`}
+                  aria-label={`Ir a sección ${config.label}`}
+                  aria-current={activePage === route.id ? 'page' : undefined}
+                >
+                  <div className={`p-2 rounded-xl ${activePage === route.id ? `${config.bgClass} ${config.colorClass}` : 'bg-slate-100 text-gray-500'}`}>
+                    <IconComp className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <span>{config.label}</span>
+                  <ChevronRight className="w-4 h-4 ml-auto text-gray-400" aria-hidden="true" />
+                </button>
+              );
+            })}
           </div>
 
           {/* Quick Contacts Panel */}
@@ -412,16 +266,18 @@ export default function Header({
               <a
                 href={`tel:${activeBrand.phone.replace(/\s+/g, '')}`}
                 className="flex flex-col items-center justify-center p-3.5 bg-slate-50 hover:bg-slate-100 border border-gray-100 rounded-2xl text-center transition"
+                aria-label={`Llamar por teléfono al ${activeBrand.phone}`}
               >
-                <Phone className="w-5 h-5 text-emerald-600 mb-1" />
+                <Phone className="w-5 h-5 text-emerald-600 mb-1" aria-hidden="true" />
                 <span className="text-[10px] font-black text-gray-900 uppercase">Llamar Tel</span>
                 <span className="text-[8px] text-gray-400 font-bold truncate max-w-full mt-0.5">{activeBrand.phone}</span>
               </a>
               <a
                 href={`mailto:${activeBrand.email}`}
                 className="flex flex-col items-center justify-center p-3.5 bg-slate-50 hover:bg-slate-100 border border-gray-100 rounded-2xl text-center transition"
+                aria-label={`Enviar correo a ${activeBrand.email}`}
               >
-                <Mail className="w-5 h-5 text-amber-500 mb-1" />
+                <Mail className="w-5 h-5 text-amber-500 mb-1" aria-hidden="true" />
                 <span className="text-[10px] font-black text-gray-900 uppercase">Enviar Email</span>
                 <span className="text-[8px] text-gray-400 font-bold truncate max-w-full mt-0.5">{activeBrand.email}</span>
               </a>
@@ -430,8 +286,9 @@ export default function Header({
             <button
               onClick={() => navigateTo('calculadora')}
               className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-gray-950 font-black text-xs text-center rounded-2xl shadow-md hover:from-amber-600 hover:to-amber-700 transition-all duration-200 uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+              aria-label="Comenzar cotización virtual de volumen"
             >
-              <Sparkles className="w-4 h-4" /> ¡Cotizar Mudanza Ahora!
+              <Sparkles className="w-4 h-4" aria-hidden="true" /> ¡Cotizar Mudanza Ahora!
             </button>
           </div>
 

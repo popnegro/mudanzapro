@@ -2,10 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BRANDS, INITIAL_LEADS } from './data';
 import LeadManager from './components/LeadManager';
-import { QuoteLead, BrandConfig } from './types';
+import { QuoteLead, BrandConfig, BrandId } from './types';
 import Header from './components/Header';
 import Breadcrumbs from './components/Breadcrumbs';
 import Hero from './components/Hero';
+import TestimonialsSection from './components/TestimonialsSection';
+import WhatsAppWidget from './components/WhatsAppWidget';
+
+import { useLeads } from './hooks/useLeads';
+import { useNavigation } from './hooks/useNavigation';
+import { useWhatsAppForm } from './hooks/useWhatsAppForm';
 
 // Define component loaders for prefetching support to boost PageSpeed performance metrics (FID, INP, LCP)
 const loaders = {
@@ -72,98 +78,33 @@ function LoadingSpinner() {
 }
 
 export default function App() {
-  const [activeBrandId, setActiveBrandId] = useState<'mendoza' | 'miranda' | 'empresas'>('empresas');
-  const [leads, setLeads] = useState<QuoteLead[]>([]);
-  const [selectedGeographicZone, setSelectedGeographicZone] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'user' | 'dashboard'>('user');
-  // Synchronize client page state with window.location.pathname for SEO, Search Console, and direct URL entry
-  const [activePage, setActivePage] = useState<string>(() => {
-    const path = window.location.pathname.replace(/^\/|\/$/g, '');
-    const validPages = ['inicio', 'calculadora', 'servicios', 'directorio', 'zonas', 'checklist', 'faq', 'contacto'];
-    return validPages.includes(path) ? path : 'inicio';
-  });
+  const [activeBrandId, setActiveBrandId] = useState<BrandId>('empresas');
+  
+  const {
+    leads,
+    handleNewLeadCreated,
+    handleUpdateLeadStatus,
+    handleDeleteLead,
+  } = useLeads();
 
-  // WhatsApp quick form states
-  const [waName, setWaName] = useState<string>('');
-  const [waMsg, setWaMsg] = useState<string>('');
-  const [waErrors, setWaErrors] = useState<{ name?: string; msg?: string }>({});
+  const {
+    activePage,
+    setActivePage,
+    selectedGeographicZone,
+    setSelectedGeographicZone,
+    viewMode,
+    setViewMode,
+  } = useNavigation();
 
-  const handleWaNameChange = (val: string) => {
-    setWaName(val);
-    const trimmed = val.trim();
-    if (!trimmed) {
-      setWaErrors(prev => ({ ...prev, name: 'El nombre es obligatorio.' }));
-    } else if (trimmed.length < 3) {
-      setWaErrors(prev => ({ ...prev, name: 'El nombre debe tener al menos 3 caracteres.' }));
-    } else if (/\d/.test(trimmed)) {
-      setWaErrors(prev => ({ ...prev, name: 'El nombre no debe contener números.' }));
-    } else if (!trimmed.includes(' ')) {
-      setWaErrors(prev => ({ ...prev, name: 'Recomendado: ingrese nombre y apellido para una cotización oficial.' }));
-    } else {
-      setWaErrors(prev => ({ ...prev, name: '' }));
-    }
-  };
-
-  const handleWaMsgChange = (val: string) => {
-    setWaMsg(val);
-    const trimmed = val.trim();
-    if (!trimmed) {
-      setWaErrors(prev => ({ ...prev, msg: 'La consulta rápida es obligatoria.' }));
-    } else if (trimmed.length < 10) {
-      setWaErrors(prev => ({ ...prev, msg: 'La consulta debe tener al menos 10 caracteres para mayor claridad.' }));
-    } else {
-      setWaErrors(prev => ({ ...prev, msg: '' }));
-    }
-  };
-
-  const getWaMsgHint = () => {
-    if (!waMsg.trim()) return null;
-    if (waMsg.trim().length < 10) return null;
-    
-    const lowerMsg = waMsg.toLowerCase();
-    const suggestions: string[] = [];
-    
-    const hasOriginOrDest = lowerMsg.includes('desde') || lowerMsg.includes('hacia') || lowerMsg.includes('origen') || lowerMsg.includes('destino') || lowerMsg.includes(' a ') || lowerMsg.includes('mendoza');
-    if (!hasOriginOrDest) {
-      suggestions.push('¿de dónde a dónde te mudas?');
-    }
-    
-    const hasBienes = lowerMsg.includes('mueble') || lowerMsg.includes('sillon') || lowerMsg.includes('heladera') || lowerMsg.includes('caja') || lowerMsg.includes('camas') || lowerMsg.includes('lavarropas') || lowerMsg.includes('cosa') || lowerMsg.includes('piano') || lowerMsg.includes('mesa') || lowerMsg.includes('flete') || lowerMsg.includes('mudanza');
-    if (!hasBienes) {
-      suggestions.push('qué cosas trasladas');
-    }
-    
-    const hasDate = lowerMsg.includes('fecha') || lowerMsg.includes('dia') || lowerMsg.includes('mañana') || lowerMsg.includes('sabado') || lowerMsg.includes('domingo') || /\d{1,2}[\/\-]\d{1,2}/.test(lowerMsg);
-    if (!hasDate) {
-      suggestions.push('para qué fecha estimada');
-    }
-    
-    if (suggestions.length > 0) {
-      return {
-        type: 'info',
-        text: '💡 Tip para cotización instantánea por WhatsApp: especifica ' + suggestions.join(', ') + '.'
-      };
-    }
-    
-    return {
-      type: 'success',
-      text: '✨ ¡Excelente detalle! Tu consulta incluye los datos necesarios para cotizarte de inmediato.'
-    };
-  };
-
-  // Load leads from localStorage on initial render, or fallback to INITIAL_LEADS
-  useEffect(() => {
-    const savedLeads = localStorage.getItem('mudanzas_leads');
-    if (savedLeads) {
-      try {
-        setLeads(JSON.parse(savedLeads));
-      } catch (e) {
-        setLeads(INITIAL_LEADS);
-      }
-    } else {
-      setLeads(INITIAL_LEADS);
-    }
-  }, []);
+  const {
+    waName,
+    waMsg,
+    waErrors,
+    setWaErrors,
+    handleWaNameChange,
+    handleWaMsgChange,
+    getWaMsgHint,
+  } = useWhatsAppForm();
 
   // PageSpeed Optimization: Prefetch highly critical chunks when browser is idle to guarantee instantaneous interaction
   useEffect(() => {
@@ -182,49 +123,8 @@ export default function App() {
     });
   }, []);
 
-  // Synchronize client page state with browser URL path (Deep linking support for SEO and Search Console crawler indexability)
-  useEffect(() => {
-    const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
-    const targetPath = activePage === 'inicio' ? '' : activePage;
-    if (currentPath !== targetPath) {
-      window.history.pushState(null, '', `/${targetPath}`);
-    }
-  }, [activePage]);
-
-  // Support back/forward browser buttons perfectly
-  useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname.replace(/^\/|\/$/g, '');
-      const validPages = ['inicio', 'calculadora', 'servicios', 'directorio', 'zonas', 'checklist', 'faq', 'contacto'];
-      setActivePage(validPages.includes(path) ? path : 'inicio');
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  // Save leads to localStorage whenever they change
-  const saveLeads = (updatedLeads: QuoteLead[]) => {
-    setLeads(updatedLeads);
-    localStorage.setItem('mudanzas_leads', JSON.stringify(updatedLeads));
-  };
-
-  const handleBrandChange = (brandId: 'mendoza' | 'miranda' | 'empresas') => {
+  const handleBrandChange = (brandId: BrandId) => {
     setActiveBrandId(brandId);
-  };
-
-  const handleNewLeadCreated = (newLead: QuoteLead) => {
-    const updated = [newLead, ...leads];
-    saveLeads(updated);
-  };
-
-  const handleUpdateLeadStatus = (leadId: string, newStatus: QuoteLead['status']) => {
-    const updated = leads.map(l => l.id === leadId ? { ...l, status: newStatus } : l);
-    saveLeads(updated);
-  };
-
-  const handleDeleteLead = (leadId: string) => {
-    const updated = leads.filter(l => l.id !== leadId);
-    saveLeads(updated);
   };
 
   const activeBrand: BrandConfig = BRANDS[activeBrandId];
@@ -292,9 +192,9 @@ export default function App() {
       "@type": "Service",
       "@id": `https://${activeBrand.domain}/#service`,
       "name": activeBrand.id === 'empresas' 
-        ? "Servicio de Directorio y Comparación de Mudanzas y Fletes"
-        : `Servicio de Mudanzas y Fletes - ${activeBrand.name}`,
-      "serviceType": "Moving and Freight Services",
+        ? "Servicio de Directorio y Comparación de Mudanzas y Traslados"
+        : `Servicio de Mudanzas y Traslados - ${activeBrand.name}`,
+      "serviceType": "Moving and Relocation Services",
       "provider": {
         "@type": activeBrand.id === 'empresas' ? "LocalBusiness" : "MovingCompany",
         "@id": `https://${activeBrand.domain}/#organization`,
@@ -316,8 +216,8 @@ export default function App() {
         })
       },
       "description": activeBrand.id === 'empresas'
-        ? "Plataforma centralizada para comparar presupuestos, encontrar transportistas verificados y calcular tarifas estimadas de fletes en Argentina."
-        : `Servicio profesional de mudanzas locales y fletes comerciales con personal de carga, embalaje seguro y rastreo de unidades, recomendado por el directorio central Empresas de Mudanzas.`,
+        ? "Plataforma centralizada para comparar presupuestos, encontrar transportistas verificados y calcular tarifas estimadas de mudanzas en Argentina."
+        : `Servicio profesional de mudanzas locales y traslados comerciales con personal de carga, embalaje seguro y rastreo de unidades, recomendado por el directorio central Empresas de Mudanzas.`,
       "areaServed": [
         {
           "@type": "AdministrativeArea",
@@ -366,16 +266,16 @@ export default function App() {
 
     if (activeBrandId === 'mendoza') {
       pageTitle = `Mudanzas Mendoza | Empresa Recomendada en Mendoza${pageSuffix}`;
-      metaDesc = `Mudanzas Mendoza, transportista verificado por el directorio Empresas de Mudanzas. Fletes residenciales o comerciales en Capital, Godoy Cruz, Luján y Maipú con el respaldo de la red nacional.`;
-      metaKeys = `mudanzas mendoza, fletes mendoza, fletes en mendoza, empresas de mudanzas mendoza, fletes godoy cruz, fletes lujan de cuyo, mudanzas maipu, recomendados mendoza`;
+      metaDesc = `Mudanzas Mendoza, transportista verificado por el directorio Empresas de Mudanzas. Traslados residenciales o comerciales en Capital, Godoy Cruz, Luján y Maipú con el respaldo de la red nacional.`;
+      metaKeys = `mudanzas mendoza, traslados mendoza, traslados en mendoza, empresas de mudanzas mendoza, mudanzas godoy cruz, mudanzas lujan de cuyo, mudanzas maipu, recomendados mendoza`;
     } else if (activeBrandId === 'miranda') {
       pageTitle = `Mudanzas Miranda | Empresa Recomendada en GBA y CABA${pageSuffix}`;
       metaDesc = `Mudanzas Miranda, transportista verificado por el directorio Empresas de Mudanzas. Servicio premium de traslados en Belgrano, Vicente López y Zona Norte con alta confiabilidad.`;
-      metaKeys = `mudanzas miranda, fletes belgrano, mudanzas caba, fletes buenos aires, fletes gba, mudanzas vicente lopez, fletes zona norte, recomendados miranda`;
+      metaKeys = `mudanzas miranda, mudanzas belgrano, mudanzas caba, mudanzas buenos aires, mudanzas gba, mudanzas vicente lopez, mudanzas zona norte, recomendados miranda`;
     } else {
       pageTitle = `Empresas de Mudanzas | Directorio de Transportistas de Argentina${pageSuffix}`;
-      metaDesc = `Directorio líder de transportes, fletes y empresas de mudanzas verificadas en Argentina. Compara precios, lee opiniones y solicita cotizaciones gratis hoy.`;
-      metaKeys = `empresas de mudanzas argentina, transportistas verificados argentina, fletes autorizados, cotizar mudanza argentina, directorio mudanzas`;
+      metaDesc = `Directorio líder de transportes, traslados y empresas de mudanzas verificadas en Argentina. Compara precios, lee opiniones y solicita cotizaciones gratis hoy.`;
+      metaKeys = `empresas de mudanzas argentina, transportistas verificados argentina, traslados autorizados, cotizar mudanza argentina, directorio mudanzas`;
     }
 
     document.title = pageTitle;
@@ -425,7 +325,74 @@ export default function App() {
     setMetaProperty('twitter:description', metaDesc, true);
     setMetaProperty('twitter:image', ogImage, true);
 
-    // 6. Dynamic JSON-LD script tags injection in document.head
+    // 6. Dynamic Google Analytics (GA) Integration
+    const gaIds = {
+      mendoza: 'G-MENDOZA999',
+      miranda: 'G-MIRANDA999',
+      empresas: 'G-DIRECTORIO999'
+    };
+    const activeGaId = gaIds[activeBrandId] || gaIds.empresas;
+    
+    // Clean up old GA script instances to prevent memory leaks/duplicate hits
+    const oldGaScript = document.getElementById('ga-script-src');
+    if (oldGaScript) oldGaScript.remove();
+    const oldGaInitScript = document.getElementById('ga-script-init');
+    if (oldGaInitScript) oldGaInitScript.remove();
+
+    // Create and append the main async GA tag
+    const gaScript = document.createElement('script');
+    gaScript.id = 'ga-script-src';
+    gaScript.async = true;
+    gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${activeGaId}`;
+    document.head.appendChild(gaScript);
+
+    // Initialize and record the page view dynamically
+    const gaInitScript = document.createElement('script');
+    gaInitScript.id = 'ga-script-init';
+    gaInitScript.text = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${activeGaId}', { page_path: '/${activePage === 'inicio' ? '' : activePage}' });
+    `;
+    document.head.appendChild(gaInitScript);
+
+    // 7. Dynamic Google Search Console Verification Tags
+    const gscTokens = {
+      mendoza: 'google-site-verification-mendoza-fletes-mudanzas-2026',
+      miranda: 'google-site-verification-miranda-gba-caba-2026',
+      empresas: 'google-site-verification-directorio-argentina-2026'
+    };
+    setMetaProperty('google-site-verification', gscTokens[activeBrandId] || gscTokens.empresas, true);
+
+    // 8. Dynamic Geotargeting & GEO Meta Tags
+    const geoData = {
+      mendoza: {
+        position: '-32.92935358563538;-68.83729582302063',
+        region: 'AR-M',
+        placename: 'Godoy Cruz, Mendoza, Argentina',
+        icbm: '-32.92935358563538, -68.83729582302063'
+      },
+      miranda: {
+        position: '-32.92935358563538;-68.83729582302063',
+        region: 'AR-M',
+        placename: 'Godoy Cruz, Mendoza, Argentina',
+        icbm: '-32.92935358563538, -68.83729582302063'
+      },
+      empresas: {
+        position: '-32.89094839663011;-68.83951453045118',
+        region: 'AR-M',
+        placename: 'Mendoza, Argentina',
+        icbm: '-32.89094839663011, -68.83951453045118'
+      }
+    };
+    const activeGeo = geoData[activeBrandId] || geoData.empresas;
+    setMetaProperty('geo.position', activeGeo.position, true);
+    setMetaProperty('geo.region', activeGeo.region, true);
+    setMetaProperty('geo.placename', activeGeo.placename, true);
+    setMetaProperty('ICBM', activeGeo.icbm, true);
+
+    // 9. Dynamic JSON-LD script tags injection in document.head
     // Ensure existing custom scripts are removed first to prevent duplicates
     const oldBusinessScript = document.getElementById('jsonld-localbusiness');
     if (oldBusinessScript) oldBusinessScript.remove();
@@ -453,6 +420,10 @@ export default function App() {
       if (bScript) bScript.remove();
       const sScript = document.getElementById('jsonld-service');
       if (sScript) sScript.remove();
+      const gaSrc = document.getElementById('ga-script-src');
+      if (gaSrc) gaSrc.remove();
+      const gaInit = document.getElementById('ga-script-init');
+      if (gaInit) gaInit.remove();
     };
   }, [activeBrandId, activePage, localBusinessSchema, serviceSchema, activeBrand.domain]);
 
@@ -578,7 +549,7 @@ export default function App() {
                         Directorio de Empresas
                       </h3>
                       <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Busca, filtra y compara fletes y empresas de transporte certificadas con choferes habilitados en Mendoza.
+                        Busca, filtra y compara empresas de mudanzas y transporte certificadas con choferes habilitados en Mendoza.
                       </p>
                       <div className="flex items-center gap-1.5 text-[11px] font-black text-emerald-600 mt-4 group-hover:translate-x-1 transition-transform">
                         <span>VER EMPRESAS</span>
@@ -603,7 +574,7 @@ export default function App() {
                         Servicios & Tarifas
                       </h3>
                       <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Conoce las tarifas sugeridas de fletes básicos, peones de carga, mudanzas residenciales y embalaje profesional.
+                        Conoce las tarifas sugeridas de mudanzas básicas, peones de carga, mudanzas residenciales y embalaje profesional.
                       </p>
                       <div className="flex items-center gap-1.5 text-[11px] font-black text-indigo-600 mt-4 group-hover:translate-x-1 transition-transform">
                         <span>REVISAR TARIFAS</span>
@@ -653,7 +624,7 @@ export default function App() {
                         Zonas de Cobertura
                       </h3>
                       <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Verifica el alcance geográfico de fletes en Ciudad de Mendoza, Godoy Cruz, Luján, Guaymallén, San Rafael y más.
+                        Verifica el alcance geográfico de mudanzas en Ciudad de Mendoza, Godoy Cruz, Luján, Guaymallén, San Rafael y más.
                       </p>
                       <div className="flex items-center gap-1.5 text-[11px] font-black text-rose-600 mt-4 group-hover:translate-x-1 transition-transform">
                         <span>VER DEPARTAMENTOS</span>
@@ -715,7 +686,7 @@ export default function App() {
                                 <h4 className="text-sm font-black text-white">Mudanzas Mendoza</h4>
                               </div>
                               <p className="text-[11px] text-slate-400 leading-relaxed">
-                                Expertos en fletes y mudanzas residenciales de alta calidad dentro de la provincia de Mendoza y traslados al Valle de Uco o San Rafael. 4.9★ estrellas.
+                                Expertos en mudanzas y traslados residenciales de alta calidad dentro de la provincia de Mendoza y traslados al Valle de Uco o San Rafael. 4.9★ estrellas.
                               </p>
                             </div>
                             <a
@@ -789,23 +760,97 @@ export default function App() {
                   </div>
                 </section>
 
+                {/* Real Verified Positive Testimonials (Social Proof) */}
+                <TestimonialsSection />
+
                 {/* High Converting Banner on Home */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-lg">
-                    <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-10 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px] hidden lg:block" />
-                    <div className="max-w-xl space-y-4">
-                      <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-[10px] font-black uppercase tracking-wider">PRESUPUESTO EN MINUTOS</span>
-                      <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">¿Listo para calcular el costo de tu mudanza?</h3>
-                      <p className="text-xs text-gray-400 leading-relaxed">
-                        Completa nuestro cotizador interactivo. Obtendrás un cálculo del volumen en m³ y presupuestos sugeridos para servicios básicos, medios y premium en el acto.
-                      </p>
-                      <button 
-                        onClick={() => { setActivePage('calculadora'); window.scrollTo({ top: 0 }); }}
-                        className="px-5 py-3 bg-amber-500 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl hover:bg-amber-400 transition shadow-xs cursor-pointer inline-flex items-center gap-2"
-                      >
-                        <Calculator className="w-4 h-4" /> Comenzar Cotización Virtual
-                      </button>
+                    <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-5 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px] hidden lg:block" />
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                      {/* Left Side: Detailed volume estimation */}
+                      <div className="lg:col-span-6 space-y-4">
+                        <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-[10px] font-black uppercase tracking-wider">COTIZADOR COMPLETO</span>
+                        <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">¿Querés un cálculo preciso en m³?</h3>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                          Usa nuestro cotizador interactivo. Podrás seleccionar tus muebles uno a uno, calcular el volumen exacto en metros cúbicos y recibir opciones de tarifas sugeridas de inmediato según el nivel de servicio que elijas.
+                        </p>
+                        <button 
+                          onClick={() => { setActivePage('calculadora'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          className="px-5 py-3.5 bg-amber-500 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl hover:bg-amber-400 transition shadow-xs cursor-pointer inline-flex items-center gap-2"
+                        >
+                          <Calculator className="w-4 h-4" /> Comenzar Cotización Virtual
+                        </button>
+                      </div>
+
+                      {/* Right Side: Fast WhatsApp inquiry */}
+                      <div className="lg:col-span-6 bg-white/5 border border-white/10 p-6 rounded-2xl space-y-4">
+                        <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                          <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">VÍA EXPRESS</span>
+                          <span className="text-[9px] bg-emerald-500/10 text-emerald-300 font-extrabold px-2 py-0.5 rounded-full uppercase">PRESUPUESTO POR WHATSAPP</span>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1">Tu Nombre</label>
+                            <input 
+                              type="text"
+                              value={waName}
+                              onChange={(e) => handleWaNameChange(e.target.value)}
+                              placeholder="Ej. Juan Pérez"
+                              className="w-full bg-white/5 border border-white/10 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-xs font-semibold text-white focus:outline-none transition-all duration-150"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1">¿Qué necesitás mudar y de dónde a dónde?</label>
+                            <textarea 
+                              rows={2}
+                              value={waMsg}
+                              onChange={(e) => handleWaMsgChange(e.target.value)}
+                              placeholder="Ej. Traslado de heladera de Godoy Cruz a Las Heras"
+                              className="w-full bg-white/5 border border-white/10 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-xs font-semibold text-white focus:outline-none transition-all duration-150 resize-none"
+                            />
+                            
+                            {/* Smart hints */}
+                            {(() => {
+                              const hint = getWaMsgHint();
+                              if (!hint) return null;
+                              return (
+                                <div className={`p-2 rounded-lg text-[9px] mt-2 border leading-relaxed font-bold animate-fade-in ${
+                                  hint.type === 'success' 
+                                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' 
+                                    : 'bg-amber-500/10 border-amber-500/20 text-amber-300'
+                                }`}>
+                                  {hint.text}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              const nameErr = !waName.trim() ? 'El nombre es obligatorio.' : waName.trim().length < 3 ? 'El nombre debe tener al menos 3 caracteres.' : '';
+                              const msgErr = !waMsg.trim() ? 'La consulta es obligatoria.' : waMsg.trim().length < 10 ? 'La consulta debe tener al menos 10 caracteres.' : '';
+
+                              if (nameErr || msgErr) {
+                                setWaErrors({ name: nameErr, msg: msgErr });
+                                return;
+                              }
+
+                              const text = `Hola ${activeBrand.name}! Mi nombre es ${waName}. Tengo una consulta rápida: ${waMsg}`;
+                              window.open(`https://wa.me/${activeBrand.phone.replace(/[^\d]/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+                            }}
+                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
+                          >
+                            <Phone className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>Solicitar por WhatsApp</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
+
                   </div>
                 </section>
               </div>
@@ -1000,40 +1045,92 @@ export default function App() {
         </motion.div>
       </AnimatePresence>
 
+      <WhatsAppWidget activeBrand={activeBrand} viewMode={viewMode} />
+
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-950">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 text-xs border-b border-gray-800 pb-8 mb-8">
-          <div className="md:col-span-4 space-y-4">
+          <div className="md:col-span-3 space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-amber-500 text-gray-950 flex items-center justify-center font-black">
-                <Truck className="w-5 h-5" />
+                <Truck className="w-5 h-5" aria-hidden="true" />
               </div>
               <span className="text-base font-extrabold text-white tracking-tight">{activeBrand.name}</span>
             </div>
             <p className="text-gray-500 leading-relaxed">
-              Portal SEO de fletes e infraestructuras logísticas para Mendoza. Conectando familias y empresas con servicios de transporte confiables autorizados municipalmente en CABA y Mendoza.
+              Portal SEO de mudanzas y servicios de relocalización para Mendoza. Conectando familias y empresas con servicios de transporte confiables autorizados municipalmente en CABA y Mendoza.
             </p>
           </div>
 
-          <div className="md:col-span-4 space-y-3">
+          <div className="md:col-span-3 space-y-3">
+            <h4 className="font-extrabold text-white text-xs uppercase tracking-wide">Secciones Adicionales</h4>
+            <div className="grid grid-cols-1 gap-2 text-gray-500">
+              <button 
+                onClick={() => { setActivePage('servicios'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Ver tarifas y servicios de mudanzas en Mendoza"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
+                Servicios y Tarifas
+              </button>
+              <button 
+                onClick={() => { setActivePage('zonas'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Ver zonas de cobertura geográfica y departamentos de Mendoza"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" aria-hidden="true" />
+                Zonas de Cobertura
+              </button>
+              <button 
+                onClick={() => { setActivePage('checklist'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Ir al planificador interactivo y checklist de mudanza"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+                Checklist de Mudanza
+              </button>
+              <button 
+                onClick={() => { setActivePage('faq'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Ir a preguntas frecuentes y respuestas de mudanza"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" aria-hidden="true" />
+                Preguntas Frecuentes (FAQ)
+              </button>
+            </div>
+          </div>
+
+          <div className="md:col-span-3 space-y-3">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wide">Sitios SEO Relacionados</h4>
             <div className="grid grid-cols-1 gap-2 text-gray-500">
-              <button onClick={() => handleBrandChange('mendoza')} className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <button 
+                onClick={() => handleBrandChange('mendoza')} 
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Cambiar al sitio de Mudanzas Mendoza"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden="true" />
                 Mudanzas Mendoza (Local Mendoza)
               </button>
-              <button onClick={() => handleBrandChange('miranda')} className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+              <button 
+                onClick={() => handleBrandChange('miranda')} 
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Cambiar al sitio de Mudanzas Miranda"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" aria-hidden="true" />
                 Mudanzas Miranda (GBA & CABA)
               </button>
-              <button onClick={() => handleBrandChange('empresas')} className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <button 
+                onClick={() => handleBrandChange('empresas')} 
+                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                aria-label="Cambiar al directorio nacional de empresas de mudanzas"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
                 Directorio Empresas de Mudanzas (Nacional)
               </button>
             </div>
           </div>
 
-          <div className="md:col-span-4 space-y-3 text-gray-500">
+          <div className="md:col-span-3 space-y-3 text-gray-500">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wide">Cumplimiento Legal</h4>
             <p className="leading-relaxed">
               • Choferes profesionales habilitados con registro nacional de cargas (LNH).<br />
