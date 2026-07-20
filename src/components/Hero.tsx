@@ -168,7 +168,7 @@ export default function Hero({ activeBrand, onZoneSelect, onPageSelect, onPrefet
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-gray-900">Tarifas Congeladas</h4>
+                  <h3 className="text-xs font-extrabold text-gray-900">Tarifas Congeladas</h3>
                   <p className="text-[10px] text-gray-500">Precio final escrito en cotización</p>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default function Hero({ activeBrand, onZoneSelect, onPageSelect, onPrefet
                   <Truck className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-gray-900">Seguro de Carga</h4>
+                  <h3 className="text-xs font-extrabold text-gray-900">Seguro de Carga</h3>
                   <p className="text-[10px] text-gray-500">Pólizas Allianz Seguros Mendoza</p>
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function Hero({ activeBrand, onZoneSelect, onPageSelect, onPrefet
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-gray-900">Puntualidad Certificada</h4>
+                  <h3 className="text-xs font-extrabold text-gray-900">Puntualidad Certificada</h3>
                   <p className="text-[10px] text-gray-500">Garantía de salida a término</p>
                 </div>
               </div>
@@ -245,20 +245,7 @@ export default function Hero({ activeBrand, onZoneSelect, onPageSelect, onPrefet
                 <ChevronRight className="w-5 h-5" />
               </button>
 
-              {/* Interactive Dots / Indicators */}
-              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
-                {CAROUSEL_IMAGES.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer ${
-                      currentSlide === index ? 'w-6 bg-amber-400 shadow-xs' : 'w-2 bg-white/50 hover:bg-white/80'
-                    }`}
-                    aria-label={`Ver diapositiva ${index + 1} de ${CAROUSEL_IMAGES.length}`}
-                    aria-current={currentSlide === index ? 'true' : 'false'}
-                  />
-                ))}
-              </div>
+
 
               {/* Floating Dynamic Badge based on current slide */}
               <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center z-10 pointer-events-none">

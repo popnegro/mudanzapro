@@ -212,7 +212,7 @@ export default function TestimonialsSection() {
                           </div>
                           <div className="flex items-center justify-between mt-0.5">
                             <span className="text-xs text-slate-500 font-bold">{testimonial.location}</span>
-                            <span className="text-[10px] text-slate-400 font-medium">{testimonial.date}</span>
+                            <span className="text-[10px] text-slate-600 font-semibold">{testimonial.date}</span>
                           </div>
                         </div>
                       </div>
@@ -224,21 +224,23 @@ export default function TestimonialsSection() {
           </div>
 
           {/* Dot Indicators */}
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center items-center gap-1 mt-6">
             {TESTIMONIALS.map((_, index) => (
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
-                className={`h-2 rounded-full transition-all duration-350 cursor-pointer ${
-                  index === currentIndex ? 'w-6 bg-emerald-600' : 'w-2 bg-slate-200 hover:bg-slate-300'
-                }`}
+                className="w-11 h-11 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-full"
                 aria-label={`Ir a la reseña ${index + 1}`}
-              />
+              >
+                <span className={`h-2 rounded-full transition-all duration-350 ${
+                  index === currentIndex ? 'w-6 bg-emerald-700' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                }`} />
+              </button>
             ))}
           </div>
 
           {/* Swipe indicator helper for mobile devices */}
-          <div className="text-center mt-3 text-[10px] font-black text-slate-400 uppercase tracking-widest sm:hidden">
+          <div className="text-center mt-2 text-[10px] font-black text-slate-600 uppercase tracking-widest sm:hidden">
             ← Desliza para ver más →
           </div>
 
