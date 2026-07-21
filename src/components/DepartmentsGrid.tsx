@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Department } from '../types';
+import React, { useState, useEffect, useCallback } from 'react';
 import { DEPARTMENTS } from '../data';
 import { MapPin, ArrowRight, Activity, CalendarCheck, TrendingUp, Sparkles } from 'lucide-react';
 
@@ -18,11 +17,11 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
     { id: 'zona_sur', name: 'Zona Sur / Distancia', desc: 'Traslados interurbanos extensos' }
   ] as const;
 
-  const getRegionForDept = (id: string): 'gran_mendoza' | 'valle_de_uco' | 'zona_sur' => {
+  const getRegionForDept = useCallback((id: string): 'gran_mendoza' | 'valle_de_uco' | 'zona_sur' => {
     if (['tunuyan', 'tupungato', 'san_carlos'].includes(id)) return 'valle_de_uco';
     if (['san_rafael', 'general_alvear', 'malargue'].includes(id)) return 'zona_sur';
     return 'gran_mendoza';
-  };
+  }, []);
 
   const filteredDepts = DEPARTMENTS.filter(d => getRegionForDept(d.id) === selectedRegion);
   const activeDept = DEPARTMENTS.find(d => d.id === selectedDeptId) || DEPARTMENTS[0];
@@ -77,7 +76,7 @@ export default function DepartmentsGrid({ selectedGeographicZone, onZoneSelect }
         }
       }
     }
-  }, [selectedGeographicZone]);
+  }, [selectedGeographicZone, selectedDeptId, selectedRegion, getRegionForDept]);
 
   return (
     <div id="cobertura-seccion" className="bg-slate-50 py-16 px-4 sm:px-6 lg:px-8 border-b border-gray-100">

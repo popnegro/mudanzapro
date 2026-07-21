@@ -22,10 +22,10 @@ export interface ServiceItem {
   features: string[];
 }
 
-export type FurnitureCategory = 'living' | 'dormitorio' | 'cocina' | 'otros';
-export type BrandId = 'mendoza' | 'miranda' | 'empresas';
-export type MoveSize = 'chico' | 'mediano' | 'grande';
-export type LeadStatus = 'new' | 'contacted' | 'completed' | 'cancelled';
+export type FurnitureCategory = "living" | "dormitorio" | "cocina" | "otros";
+export type BrandId = "mendoza" | "miranda" | "empresas";
+export type MoveSize = "chico" | "mediano" | "grande";
+export type LeadStatus = "new" | "contacted" | "completed" | "cancelled";
 
 export interface FurnitureItem {
   id: string;
@@ -91,4 +91,3 @@ export interface RecommendedCompany {
   minPrice: number;
   badge?: string;
 }
-

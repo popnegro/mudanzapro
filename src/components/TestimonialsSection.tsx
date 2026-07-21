@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Star, ChevronLeft, ChevronRight, CheckCircle, Quote, ThumbsUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useCarousel } from '../hooks/useCarousel';
 
 interface Testimonial {
   id: number;
@@ -67,61 +68,11 @@ const TESTIMONIALS: Testimonial[] = [
 ];
 
 export default function TestimonialsSection() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
-
-  // Auto-play interval
-  useEffect(() => {
-    if (!isAutoPlay) return;
-    const interval = setInterval(() => {
-      handleNext();
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [currentIndex, isAutoPlay]);
-
-  const handlePrev = () => {
-    setIsAutoPlay(false);
-    setCurrentIndex((prev) => (prev === 0 ? TESTIMONIALS.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === TESTIMONIALS.length - 1 ? 0 : prev + 1));
-  };
-
-  const handleDotClick = (index: number) => {
-    setIsAutoPlay(false);
-    setCurrentIndex(index);
-  };
-
-  // Touch handlers for mobile gesture swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setIsAutoPlay(false);
-    touchStartX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const distance = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 50;
-
-    if (distance > minSwipeDistance) {
-      // Swiped Left -> Next slide
-      handleNext();
-    } else if (distance < -minSwipeDistance) {
-      // Swiped Right -> Prev slide
-      handlePrev();
-    }
-
-    // Reset touch coordinates
-    touchStartX.current = null;
-    touchEndX.current = null;
-  };
+  const { currentIndex, handlePrev, handleNext, handleDotClick, touchHandlers } = useCarousel({
+    itemCount: TESTIMONIALS.length,
+    autoplay: true,
+    autoplayInterval: 6000,
+  });
 
   return (
     <section 
@@ -156,7 +107,7 @@ export default function TestimonialsSection() {
 
           {/* Arrow Right */}
           <button
-            onClick={() => { setIsAutoPlay(false); handleNext(); }}
+            onClick={handleNext}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-6 z-10 p-3 bg-white hover:bg-slate-50 border border-gray-200/80 rounded-full text-gray-700 shadow-md transition hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer hidden sm:flex"
             aria-label="Siguiente reseña"
           >
@@ -166,9 +117,7 @@ export default function TestimonialsSection() {
           {/* Cards Slides Window */}
           <div 
             className="overflow-hidden cursor-grab active:cursor-grabbing"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            {...touchHandlers}
           >
             <div className="relative min-h-[340px] sm:min-h-[260px] flex items-center justify-center">
               <AnimatePresence mode="wait">
@@ -233,17 +182,16 @@ export default function TestimonialsSection() {
                 aria-label={`Ir a la reseña ${index + 1}`}
               >
                 <span className={`h-2 rounded-full transition-all duration-350 ${
-                  index === currentIndex ? 'w-6 bg-emerald-700' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                  index === currentIndex ? 'w-6 bg-emerald-700' : 'w-2 bg-slate-300 hover:bg-slate-400' 
                 }`} />
               </button>
             ))}
           </div>
 
           {/* Swipe indicator helper for mobile devices */}
-          <div className="text-center mt-2 text-[10px] font-black text-slate-600 uppercase tracking-widest sm:hidden">
-            ← Desliza para ver más →
+          <div className="text-center mt-4 text-xs text-gray-400 font-medium sm:hidden">
+            <p>Desliza para ver más reseñas</p>
           </div>
-
         </div>
       </div>
     </section>

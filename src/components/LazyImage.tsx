@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 interface LazyImageProps {
   src: string;
@@ -6,7 +6,7 @@ interface LazyImageProps {
   className?: string;
   rootMargin?: string;
   threshold?: number;
-  loading?: 'lazy' | 'eager';
+  loading?: "lazy" | "eager";
   referrerPolicy?: React.HTMLAttributeReferrerPolicy;
 }
 
@@ -19,10 +19,10 @@ interface LazyImageProps {
 export default function LazyImage({
   src,
   alt,
-  className = '',
-  rootMargin = '200px',
+  className = "",
+  rootMargin = "200px",
   threshold = 0.01,
-  loading = 'lazy',
+  loading = "lazy",
   referrerPolicy,
   ...rest
 }: LazyImageProps) {
@@ -33,21 +33,21 @@ export default function LazyImage({
 
   // Generate low-res placeholder URL if the image is hosted on Unsplash
   const placeholderUrl = React.useMemo(() => {
-    if (src && src.includes('images.unsplash.com')) {
+    if (src && src.includes("images.unsplash.com")) {
       // Create a 30px wide, low quality, blurred version of the same image
       let placeholder = src;
-      if (placeholder.includes('w=')) {
-        placeholder = placeholder.replace(/w=\d+/, 'w=30');
+      if (placeholder.includes("w=")) {
+        placeholder = placeholder.replace(/w=\d+/, "w=30");
       } else {
-        placeholder += '&w=30';
+        placeholder += "&w=30";
       }
-      if (placeholder.includes('q=')) {
-        placeholder = placeholder.replace(/q=\d+/, 'q=15');
+      if (placeholder.includes("q=")) {
+        placeholder = placeholder.replace(/q=\d+/, "q=15");
       } else {
-        placeholder += '&q=15';
+        placeholder += "&q=15";
       }
-      if (!placeholder.includes('blur=')) {
-        placeholder += '&blur=8';
+      if (!placeholder.includes("blur=")) {
+        placeholder += "&blur=8";
       }
       return placeholder;
     }
@@ -57,7 +57,7 @@ export default function LazyImage({
 
   useEffect(() => {
     // If loading is eager, bypass IntersectionObserver to load immediately
-    if (loading === 'eager') {
+    if (loading === "eager") {
       setIsInView(true);
       return;
     }
@@ -74,7 +74,7 @@ export default function LazyImage({
           }
         }
       },
-      { rootMargin, threshold }
+      { rootMargin, threshold },
     );
 
     observer.observe(containerRef.current);
@@ -119,9 +119,9 @@ export default function LazyImage({
           alt={alt}
           onLoad={handleMainImageLoad}
           className={`w-full h-full object-cover transition-all duration-700 ease-out ${
-            isLoaded 
-              ? 'opacity-100 blur-none scale-100' 
-              : 'opacity-0 blur-md scale-[1.02]'
+            isLoaded
+              ? "opacity-100 blur-none scale-100"
+              : "opacity-0 blur-md scale-[1.02]"
           }`}
           loading={loading}
           referrerPolicy={referrerPolicy}

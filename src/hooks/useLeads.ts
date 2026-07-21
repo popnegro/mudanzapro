@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { QuoteLead } from '../types';
-import { INITIAL_LEADS } from '../data';
+import { useState, useEffect } from "react";
+import { QuoteLead } from "../types";
+import { INITIAL_LEADS } from "../data";
 
 export function useLeads() {
   const [leads, setLeads] = useState<QuoteLead[]>([]);
 
   // Load leads from localStorage on initial render, or fallback to INITIAL_LEADS
   useEffect(() => {
-    const savedLeads = localStorage.getItem('mudanzas_leads');
+    const savedLeads = localStorage.getItem("mudanzas_leads");
     if (savedLeads) {
       try {
         setLeads(JSON.parse(savedLeads));
@@ -22,7 +22,7 @@ export function useLeads() {
   // Save leads to localStorage and update state
   const saveLeads = (updatedLeads: QuoteLead[]) => {
     setLeads(updatedLeads);
-    localStorage.setItem('mudanzas_leads', JSON.stringify(updatedLeads));
+    localStorage.setItem("mudanzas_leads", JSON.stringify(updatedLeads));
   };
 
   const handleNewLeadCreated = (newLead: QuoteLead) => {
@@ -30,13 +30,18 @@ export function useLeads() {
     saveLeads(updated);
   };
 
-  const handleUpdateLeadStatus = (leadId: string, newStatus: QuoteLead['status']) => {
-    const updated = leads.map(l => l.id === leadId ? { ...l, status: newStatus } : l);
+  const handleUpdateLeadStatus = (
+    leadId: string,
+    newStatus: QuoteLead["status"],
+  ) => {
+    const updated = leads.map((l) =>
+      l.id === leadId ? { ...l, status: newStatus } : l,
+    );
     saveLeads(updated);
   };
 
   const handleDeleteLead = (leadId: string) => {
-    const updated = leads.filter(l => l.id !== leadId);
+    const updated = leads.filter((l) => l.id !== leadId);
     saveLeads(updated);
   };
 
