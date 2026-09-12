@@ -109,7 +109,7 @@ body.mudanzapro-app a[class~="bg-[#06434A]"] {
 }
 
 body.mudanzapro-app button[class~="bg-[#07BE8A]"],
-body.mudanzapro-app a[class~="bg-[#07BE8A"] {
+body.mudanzapro-app a[class~="bg-[#07BE8A]"] {
   background-color: var(--mp-accent) !important;
   color: var(--mp-ink-strong) !important;
 }
