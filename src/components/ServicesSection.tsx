@@ -1,216 +1,155 @@
 import React from "react";
-import { SERVICES } from "../data";
 import {
-  Truck,
-  Sparkles,
   Archive,
+  ArrowUpCircle,
+  Boxes,
+  Check,
+  Truck,
   Users,
   Warehouse,
-  ShieldAlert,
-  Check,
-  ArrowUpCircle,
-  Award,
 } from "lucide-react";
 
 interface ServicesSectionProps {
   onPageSelect?: (page: string) => void;
 }
 
-export default function ServicesSection({
-  onPageSelect,
-}: ServicesSectionProps) {
-  // Map icons
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case "Truck":
-        return <Truck className="w-6 h-6" />;
-      case "Sparkles":
-        return <Sparkles className="w-6 h-6" />;
-      case "Archive":
-        return <Archive className="w-6 h-6" />;
-      case "Users":
-        return <Users className="w-6 h-6" />;
-      case "Warehouse":
-        return <Warehouse className="w-6 h-6" />;
-      case "ArrowUpCircle":
-        return <ArrowUpCircle className="w-6 h-6" />;
-      case "Award":
-        return <Award className="w-6 h-6" />;
-      default:
-        return <Truck className="w-6 h-6" />;
-    }
-  };
+type ServiceGuide = {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  when: string;
+};
 
-  const getCostTier = (basePrice: number) => {
-    if (basePrice < 35000)
-      return {
-        label: "Muy Accesible",
-        color: "text-emerald-700 bg-emerald-50 border-emerald-100",
-      };
-    if (basePrice < 60000)
-      return {
-        label: "Económico",
-        color: "text-teal-700 bg-teal-50 border-teal-100",
-      };
-    if (basePrice < 85000)
-      return {
-        label: "Estándar",
-        color: "text-amber-700 bg-amber-50 border-amber-100",
-      };
-    return {
-      label: "Servicio Premium",
-      color: "text-indigo-700 bg-indigo-50 border-indigo-100",
-    };
-  };
+const SERVICE_GUIDE: ServiceGuide[] = [
+  {
+    id: "transporte",
+    name: "Transporte",
+    description:
+      "Traslado de tus pertenencias entre el punto de origen y el destino.",
+    icon: <Truck className="h-5 w-5" aria-hidden="true" />,
+    when: "Siempre que necesitás mover tus pertenencias.",
+  },
+  {
+    id: "carga-descarga",
+    name: "Carga y descarga",
+    description:
+      "Manipulación de muebles, cajas y otros objetos para subirlos y bajarlos del vehículo.",
+    icon: <Users className="h-5 w-5" aria-hidden="true" />,
+    when: "Útil cuando no querés ocuparte de la carga por tu cuenta.",
+  },
+  {
+    id: "embalaje",
+    name: "Embalaje",
+    description:
+      "Preparación y protección de muebles, objetos frágiles y pertenencias antes del traslado.",
+    icon: <Archive className="h-5 w-5" aria-hidden="true" />,
+    when: "Conviene considerarlo si necesitás ayuda para preparar tus cosas.",
+  },
+  {
+    id: "desmontaje-montaje",
+    name: "Desmontaje y montaje",
+    description:
+      "Desarme y armado de muebles que necesitan preparación para poder trasladarse.",
+    icon: <Boxes className="h-5 w-5" aria-hidden="true" />,
+    when: "Puede ser necesario para muebles grandes o difíciles de manipular.",
+  },
+  {
+    id: "altura",
+    name: "Mudanzas en altura",
+    description:
+      "Alternativas para objetos que no pueden salir fácilmente por escaleras, puertas o ascensores.",
+    icon: <ArrowUpCircle className="h-5 w-5" aria-hidden="true" />,
+    when: "Revisalo si tenés objetos voluminosos o accesos complicados.",
+  },
+  {
+    id: "guardamuebles",
+    name: "Guardamuebles",
+    description:
+      "Almacenamiento temporal cuando necesitás liberar uno de los espacios antes de completar el traslado.",
+    icon: <Warehouse className="h-5 w-5" aria-hidden="true" />,
+    when: "Puede servir si las fechas de salida y entrada no coinciden.",
+  },
+];
 
+export default function ServicesSection({ onPageSelect }: ServicesSectionProps) {
   return (
-    <div
+    <section
       id="servicios-seccion"
-      className="bg-white py-16 px-4 sm:px-6 lg:px-8 border-b border-gray-100"
+      className="border-b border-gray-100 bg-white px-4 py-16 sm:px-6 lg:px-8"
+      aria-labelledby="servicios-title"
     >
-      <div className="max-w-7xl mx-auto space-y-12">
-        <div className="text-center space-y-3">
-          <span className="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-wider">
-            NUESTROS SERVICIOS
+      <div className="mx-auto max-w-6xl space-y-10">
+        <header className="max-w-2xl space-y-3">
+          <span className="inline-flex rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
+            Guía para planificar
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-            ¿Qué Ofrecemos en el Portal de Mudanzas?
+          <h2
+            id="servicios-title"
+            className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl"
+          >
+            Servicios de mudanza
           </h2>
-          <p className="text-sm text-gray-500 max-w-xl mx-auto">
-            Disponemos de una flota variada para cubrir todo tipo de
-            necesidades, desde traslados rápidos hasta mudanzas premium.
+          <p className="text-base leading-7 text-gray-600 sm:text-lg">
+            Entendé qué puede incluir un traslado antes de pedir presupuesto.
+            No todos los servicios son necesarios en todas las mudanzas.
           </p>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SERVICES.map((srv) => {
-            return (
-              <div
-                key={srv.id}
-                className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 hover:border-gray-200 shadow-3xs hover:shadow-md transition-all duration-250 flex flex-col justify-between space-y-6"
-                role="region"
-                aria-label={`Tarjeta del servicio de ${srv.name}`}
-              >
-                <div className="space-y-4">
-                  {/* Service Icon Banner */}
-                  <div className="flex justify-between items-center">
-                    <div
-                      className="p-3.5 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100"
-                      aria-hidden="true"
-                    >
-                      {getIcon(srv.icon)}
-                    </div>
-                    <span className="text-xs font-semibold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-lg">
-                      {srv.priceDetail}
-                    </span>
-                  </div>
-
-                  {/* Header */}
-                  <div>
-                    <h3 className="text-lg font-extrabold text-gray-900">
-                      {srv.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                      {srv.description}
-                    </p>
-                  </div>
-
-                  {/* Features List */}
-                  <ul
-                    className="space-y-2 pt-2"
-                    aria-label={`Características de ${srv.name}`}
-                  >
-                    {srv.features.map((feat, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-xs text-gray-600"
-                      >
-                        <span
-                          className="text-emerald-500 font-bold mt-0.5"
-                          aria-hidden="true"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                        </span>
-                        <span className="leading-tight">{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Pricing / CTA */}
-                <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-bold leading-none mb-1">
-                      RANGO DE INVERSIÓN
-                    </p>
-                    <span
-                      className={`text-[10px] font-black px-2.5 py-1 rounded-lg border uppercase ${getCostTier(srv.basePrice).color}`}
-                    >
-                      {getCostTier(srv.basePrice).label}
-                    </span>
-                  </div>
-                  <a
-                    id={`cta-srv-${srv.id}`}
-                    href="/calculadora"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (onPageSelect) {
-                        onPageSelect("calculadora");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }
-                    }}
-                    className="text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 px-3.5 py-2 rounded-xl transition cursor-pointer"
-                    aria-label={`Calcular volumen para servicio de ${srv.name}`}
-                  >
-                    Cotizar
-                  </a>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {SERVICE_GUIDE.map((service) => (
+            <article
+              key={service.id}
+              className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-emerald-200 hover:shadow-sm sm:p-6"
+            >
+              <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                {service.icon}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">{service.name}</h3>
+              <p className="mt-2 text-sm leading-6 text-gray-600">
+                {service.description}
+              </p>
+              <div className="mt-auto border-t border-gray-100 pt-4">
+                <div className="flex gap-2 text-sm leading-5 text-gray-600">
+                  <Check
+                    className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600"
+                    aria-hidden="true"
+                  />
+                  <span>{service.when}</span>
                 </div>
               </div>
-            );
-          })}
+            </article>
+          ))}
         </div>
 
-        {/* Protection / Trust Banner */}
-        <div
-          className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm"
-          role="region"
-          aria-label="Garantía de transporte seguro"
-        >
-          <div className="space-y-2 flex-1">
-            <div className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-bold">
-              <ShieldAlert
-                className="w-4 h-4 text-amber-400"
-                aria-hidden="true"
-              />
-              <span>GARANTÍA DE TRANSPORTE Y PROTECCIÓN TOTAL</span>
+        <div className="rounded-2xl bg-[#06434A] p-6 text-white sm:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl space-y-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-200">
+                Próximo paso
+              </p>
+              <h3 className="text-xl font-bold sm:text-2xl">
+                ¿Ya sabés qué necesitás para tu traslado?
+              </h3>
+              <p className="text-sm leading-6 text-teal-50">
+                Calculá tu mudanza y reuní la información necesaria antes de
+                solicitar un presupuesto.
+              </p>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black">
-              ¿Tus objetos son frágiles o extremadamente pesados?
-            </h3>
-            <p className="text-xs text-gray-400 max-w-2xl leading-relaxed">
-              Contamos con grúas especiales y herramientas específicas para el
-              traslado seguro de pianos, heladeras de doble puerta, equipos
-              industriales de salud o vajilla fina. Nuestro personal cuenta con
-              cursos de estiba técnica homologados.
-            </p>
-          </div>
-          <a
-            id="insurance-btn"
-            href="/contacto"
-            onClick={(e) => {
-              e.preventDefault();
-              if (onPageSelect) {
-                onPageSelect("contacto");
+            <a
+              href="/calculadora"
+              onClick={(event) => {
+                event.preventDefault();
+                onPageSelect?.("calculadora");
                 window.scrollTo({ top: 0, behavior: "smooth" });
-              }
-            }}
-            className="bg-amber-500 text-gray-950 font-extrabold text-xs px-6 py-3.5 rounded-xl hover:bg-amber-400 transition whitespace-nowrap cursor-pointer"
-            aria-label="Obtener más información sobre el seguro de mercancías y cobertura de protección"
-          >
-            Saber Más Sobre Seguros
-          </a>
+              }}
+              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-[#07BE8A] px-5 py-3 text-sm font-bold text-[#06434A] transition hover:bg-[#009966] hover:text-white"
+            >
+              Calcular mi mudanza
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
