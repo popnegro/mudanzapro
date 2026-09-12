@@ -171,7 +171,7 @@ export default function QuoteCalculator({ activeBrand, onNewLeadCreated, onZoneS
           <div className="mt-5 rounded-2xl border border-[#06434A]/10 p-5">
             <p className="text-lg font-bold text-[#06434A]">Mudanzas Miranda</p>
             <p className="mt-1 text-sm text-slate-600">Proveedor para solicitar el presupuesto de tu traslado.</p>
-            <button type="button" className="mt-4 min-h-11 w-full rounded-xl bg-[#07BE8A] px-5 text-sm font-bold text-[#06434A] transition hover:bg-[#009966] hover:text-white">Solicitar presupuesto a Mudanzas Miranda</button>
+            <a href="https://wa.link/zn3zij" target="_blank" rel="noopener noreferrer" className="mt-4 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#07BE8A] px-5 text-sm font-bold text-[#06434A] transition hover:bg-[#009966] hover:text-white">Hablar con Mudanzas Miranda por WhatsApp</a>
           </div>
           <button type="button" onClick={() => { setSuccess(false); setStep(1); }} className="mt-5 min-h-11 w-full rounded-xl border border-slate-200 px-5 text-sm font-semibold text-[#06434A]">Modificar datos</button>
         </div>
