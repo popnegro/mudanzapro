@@ -1,853 +1,248 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
-import { BRANDS, INITIAL_LEADS } from './data';
+import React, { useEffect, useMemo } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import LeadManager from './components/LeadManager';
-import { QuoteLead, BrandConfig, BrandId } from './types';
-import Header from './components/Header';
-import SeoManager from './components/SeoManager';
-import Breadcrumbs from './components/Breadcrumbs';
-import WhatsAppWidget from './components/WhatsAppWidget';
-
-import { useLeads } from './hooks/useLeads';
-import { useWhatsAppForm } from './hooks/useWhatsAppForm';
-import { useAppNavigation } from './hooks/useAppNavigation';
-import { ComponentLoaderKeys } from './componentTypes';
-import { 
-  Truck, Star, MessageSquare, ShieldCheck, Mail, Phone, 
-  MapPin, Clock, ArrowUpRight, Github, Landmark, Sparkles,
-  Calculator, Award, ClipboardList, HelpCircle, Globe, ChevronRight,
-  AlertCircle, Check
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  ArrowRight,
+  Calculator,
+  ClipboardList,
+  MapPin,
+  Menu,
+  Route,
+  Truck,
+  X,
 } from 'lucide-react';
+import LeadManager from './components/LeadManager';
+import SeoManager from './components/SeoManager';
+import FAQSection from './components/FAQSection';
+import QuoteCalculator from './components/QuoteCalculator';
+import ServicesSection from './components/ServicesSection';
+import DepartmentsGrid from './components/DepartmentsGrid';
+import Checklist from './components/Checklist';
+import RecommendedCompanies from './components/RecommendedCompanies';
+import { BRANDS } from './data';
+import { BrandConfig } from './types';
+import { useLeads } from './hooks/useLeads';
+import { useAppNavigation } from './hooks/useAppNavigation';
 
-// Define component loaders for prefetching support to boost PageSpeed performance metrics (FID, INP, LCP)
-const loaders: Record<ComponentLoaderKeys, () => Promise<any>> = {
-  Hero: () => import('./components/Hero'),  QuoteCalculator: () => import('./components/QuoteCalculator'),  DepartmentsGrid: () => import('./components/DepartmentsGrid'),  ServicesSection: () => import('./components/ServicesSection'),  Checklist: () => import('./components/Checklist'),  FAQSection: () => import('./components/FAQSection'),  RecommendedCompanies: () => import('./components/RecommendedCompanies'),  TestimonialsSection: () => import('./components/TestimonialsSection')};
-
-// Lazy components using pre-declared loaders
-const Hero = React.lazy(loaders.Hero);
-const QuoteCalculator = React.lazy(loaders.QuoteCalculator);
-const DepartmentsGrid = React.lazy(loaders.DepartmentsGrid);
-const ServicesSection = React.lazy(loaders.ServicesSection);
-const Checklist = React.lazy(loaders.Checklist);
-const FAQSection = React.lazy(loaders.FAQSection);
-const RecommendedCompanies = React.lazy(loaders.RecommendedCompanies);
-const TestimonialsSection = React.lazy(loaders.TestimonialsSection);
-
-// Prefetch function to load component chunks dynamically
-const prefetchComponent = (name: ComponentLoaderKeys) => {
-  const loader = loaders[name];
-  if (loader) {
-    loader().catch(() => {}); // silent catch for offline or cancelled chunk requests
-  }
+const neutralBrand: BrandConfig = {
+  ...BRANDS.empresas,
+  name: 'MudanzaPro',
+  tagline: 'Herramientas para planificar, estimar y preparar tu mudanza en Mendoza',
+  primaryColor: 'from-[#06434A] to-[#07BE8A]',
+  secondaryColor: '#06434A',
+  accentColor: '#07BE8A',
+  gradientFrom: '#06434A',
+  gradientTo: '#07BE8A',
+  domain: 'mudanzapro.vercel.app',
+  phone: '',
+  email: '',
+  address: '',
+  reviewCount: 0,
+  avgRating: 0,
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    }
-  }
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 35 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 80,
-      damping: 15
-    }
-  }
-};
+const toolCards = [
+  { id: 'calculadora', icon: Calculator, title: 'Calcular mi mudanza', text: 'Estimá volumen, distancia y servicios antes de pedir presupuesto.' },
+  { id: 'checklist', icon: ClipboardList, title: 'Organizar el traslado', text: 'Ordená tareas y fechas para llegar al día de la mudanza con todo listo.' },
+  { id: 'servicios', icon: Truck, title: 'Entender los servicios', text: 'Compará qué incluye cada modalidad y qué variables pueden cambiar el costo.' },
+  { id: 'zonas', icon: MapPin, title: 'Revisar recorridos', text: 'Consultá departamentos y recorridos habituales dentro de Mendoza.' },
+];
 
 function LoadingSpinner() {
+  return <div className="min-h-[40vh] grid place-items-center text-sm text-slate-500">Cargando herramienta…</div>;
+}
+
+function Home({ onNavigate }: { onNavigate: (page: string) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center p-16 min-h-[350px] space-y-4 animate-pulse">
-      <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-xs font-black text-amber-600 uppercase tracking-widest">Cargando herramienta virtual...</p>
+    <div className="overflow-hidden">
+      <section className="bg-[#FAF9F5] border-b border-[#06434A]/10">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24 lg:grid lg:grid-cols-[1.1fr_.9fr] lg:gap-16 lg:px-10 lg:py-28">
+          <div className="max-w-3xl">
+            <p className="mb-5 inline-flex items-center rounded-full border border-[#07BE8A]/30 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[.16em] text-[#06434A]">
+              Herramientas para tu mudanza en Mendoza
+            </p>
+            <h1 className="max-w-3xl text-4xl font-black tracking-[-.035em] text-[#06434A] sm:text-6xl lg:text-7xl lg:leading-[1.02]">
+              Planificá tu mudanza antes de pedir presupuesto.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
+              Calculá, organizá y prepará tu traslado con información clara. Después, elegí cómo querés resolverlo.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button onClick={() => onNavigate('calculadora')} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#06434A] px-6 py-3.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#05373D] focus:outline-none focus:ring-2 focus:ring-[#07BE8A] focus:ring-offset-2">
+                Calcular mi mudanza <ArrowRight className="h-4 w-4" />
+              </button>
+              <button onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#06434A]/15 bg-white px-6 py-3.5 text-sm font-bold text-[#06434A] transition hover:border-[#06434A]/30 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#07BE8A] focus:ring-offset-2">
+                Ver cómo funciona
+              </button>
+            </div>
+            <p className="mt-4 text-xs text-slate-500">MudanzaPro no es una empresa de mudanzas: es la capa de planificación y decisión.</p>
+          </div>
+
+          <div className="mt-12 lg:mt-0">
+            <div className="rounded-3xl border border-[#06434A]/10 bg-[#06434A] p-6 text-white shadow-xl sm:p-8">
+              <div className="flex items-center justify-between border-b border-white/10 pb-5">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[.16em] text-[#07BE8A]">Tu recorrido</p>
+                  <h2 className="mt-1 text-xl font-extrabold">De la duda a la decisión</h2>
+                </div>
+                <Route className="h-7 w-7 text-[#07BE8A]" />
+              </div>
+              <ol className="mt-6 space-y-5">
+                {['Entendé qué necesitás', 'Estimá volumen y recorrido', 'Prepará tu mudanza', 'Solicitá presupuesto'].map((step, index) => (
+                  <li key={step} className="flex items-center gap-4">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-sm font-black text-[#07BE8A]">0{index + 1}</span>
+                    <span className="text-sm font-semibold text-white/90">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-7 rounded-2xl bg-white/5 p-4 text-sm leading-6 text-white/70">
+                Primero resolvés la información. Después elegís la empresa que hará el traslado.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 sm:py-20" id="herramientas">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="max-w-2xl">
+            <p className="text-xs font-black uppercase tracking-[.16em] text-[#07BE8A]">Qué necesitás resolver</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-[#06434A] sm:text-4xl">Una herramienta para cada decisión.</h2>
+            <p className="mt-3 text-base leading-7 text-slate-600">Sin directorios dudosos ni promesas de terceros. Solo herramientas para llegar mejor preparado al presupuesto.</p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {toolCards.map(({ id, icon: Icon, title, text }) => (
+              <button key={id} onClick={() => onNavigate(id)} className="group min-h-56 rounded-2xl border border-slate-200 bg-[#FAF9F5] p-6 text-left transition hover:-translate-y-0.5 hover:border-[#07BE8A]/50 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#07BE8A] focus:ring-offset-2">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#06434A] text-white"><Icon className="h-5 w-5" /></span>
+                <h3 className="mt-6 text-lg font-extrabold text-[#06434A]">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+                <span className="mt-5 inline-flex items-center gap-1 text-xs font-extrabold text-[#009966]">Abrir herramienta <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="como-funciona" className="bg-[#FAF9F5] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[.16em] text-[#07BE8A]">Cómo funciona</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#06434A] sm:text-4xl">Primero planificás. Después contratás.</h2>
+              <p className="mt-4 max-w-xl leading-7 text-slate-600">La función de MudanzaPro es ayudarte a reducir incertidumbre antes de hablar con una empresa.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                ['01', 'Información', 'Entendé precios, variables, servicios y recorridos.'],
+                ['02', 'Estimación', 'Armá una referencia del volumen y alcance de tu traslado.'],
+                ['03', 'Preparación', 'Organizá tareas, tiempos y puntos que no conviene olvidar.'],
+                ['04', 'Presupuesto', 'Con la información lista, pasá a la etapa comercial.'],
+              ].map(([number, title, text]) => (
+                <div key={number} className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <div className="flex items-center gap-3"><span className="text-xs font-black text-[#07BE8A]">{number}</span><h3 className="font-extrabold text-[#06434A]">{title}</h3></div>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="rounded-3xl bg-[#06434A] p-7 text-white sm:p-10 lg:flex lg:items-center lg:justify-between lg:gap-10">
+            <div className="max-w-2xl">
+              <p className="text-xs font-black uppercase tracking-[.16em] text-[#07BE8A]">Parte del ecosistema</p>
+              <h2 className="mt-2 text-2xl font-black sm:text-3xl">Información, planificación y contratación en el orden correcto.</h2>
+              <p className="mt-3 text-sm leading-6 text-white/70">Mudanzas en Mendoza te ayuda a saber. MudanzaPro te ayuda a resolver. Mudanzas Miranda puede encargarse del traslado.</p>
+            </div>
+            <div className="mt-6 flex shrink-0 flex-col gap-3 sm:flex-row lg:mt-0">
+              <a href="https://mudanzasmendoza.com.ar/mudanzas-en-mendoza.html" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-5 text-sm font-bold text-white hover:bg-white/5">Qué saber</a>
+              <a href="https://wa.link/zn3zij" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#07BE8A] px-5 text-sm font-extrabold text-[#06434A] hover:bg-[#009966] hover:text-white">Solicitar presupuesto</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
 export default function App() {
-  const [activeBrandId, setActiveBrandId] = useState<BrandId>('empresas');
-  
-  const {
-    leads,
-    handleNewLeadCreated,
-    handleUpdateLeadStatus,
-    handleDeleteLead,
-  } = useLeads();
+  const { leads, handleNewLeadCreated, handleUpdateLeadStatus, handleDeleteLead } = useLeads();
+  const { activePage, setActivePage, selectedGeographicZone, setSelectedGeographicZone, viewMode, setViewMode } = useAppNavigation();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const activeBrand = useMemo(() => neutralBrand, []);
 
-  const {
-    activePage, setActivePage, selectedGeographicZone, setSelectedGeographicZone, viewMode, setViewMode
-  } = useAppNavigation();
-
-  const {
-    waName,
-    waMsg,
-    waErrors,
-    setWaErrors,
-    handleWaNameChange,
-    handleWaMsgChange,
-    getWaMsgHint,
-  } = useWhatsAppForm();
-
-  // PageSpeed Optimization: Prefetch highly critical chunks when browser is idle to guarantee instantaneous interaction
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && /Chrome-Lighthouse|SpeedIns/i.test(navigator.userAgent)) {
-      return; // Fully disable during PageSpeed Insight audits to eliminate unused JS and network payload bloat
-    }
-
-    // Use a safer, delayed prefetching strategy to avoid critical chain requests.
-    // Start prefetching only after a significant delay to ensure the main thread is free.
-    const prefetchTimer = setTimeout(() => {
-      const idlePeriod = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 200));
-      idlePeriod(() => {
-        // Prefetch components that are likely to be used next, but are not critical for the initial view.
-        prefetchComponent('Hero'); // Prefetch Hero as it's high on the page
-        prefetchComponent('QuoteCalculator');
-        prefetchComponent('RecommendedCompanies');
-        prefetchComponent('ServicesSection');
-        prefetchComponent('TestimonialsSection');
-      });
-    }, 4000); // Increased delay from 2500ms to 4000ms to stay off the critical path.
-
-    return () => clearTimeout(prefetchTimer);
+    document.body.classList.add('mudanzapro-app');
+    return () => document.body.classList.remove('mudanzapro-app');
   }, []);
 
-  const handleBrandChange = (brandId: BrandId) => {
-    setActiveBrandId(brandId);
+  const navigate = (page: string) => {
+    setActivePage(page);
+    setMobileOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const activeBrand: BrandConfig = BRANDS[activeBrandId];
+  const renderPage = () => {
+    if (viewMode === 'dashboard') {
+      return <LeadManager leads={leads} onUpdateLeadStatus={handleUpdateLeadStatus} onDeleteLead={handleDeleteLead} />;
+    }
+    switch (activePage) {
+      case 'calculadora': return <QuoteCalculator activeBrand={activeBrand} onNewLeadCreated={handleNewLeadCreated} onZoneSelect={setSelectedGeographicZone} onViewModeChange={setViewMode} />;
+      case 'servicios': return <ServicesSection onPageSelect={navigate} />;
+      case 'directorio': return <RecommendedCompanies selectedGeographicZone={selectedGeographicZone} onZoneSelect={setSelectedGeographicZone} onBrandSelect={() => navigate('inicio')} onViewModeChange={setViewMode} />;
+      case 'zonas': return <DepartmentsGrid selectedGeographicZone={selectedGeographicZone} onZoneSelect={(zone) => { setSelectedGeographicZone(zone); navigate('calculadora'); }} />;
+      case 'checklist': return <Checklist />;
+      case 'faq': return <FAQSection />;
+      default: return <Home onNavigate={navigate} />;
+    }
+  };
 
   return (
     <HelmetProvider>
-      <div className="min-h-screen bg-slate-50 text-gray-900 font-sans antialiased selection:bg-amber-200 selection:text-gray-950 scroll-smooth">
-      <SeoManager activeBrand={activeBrand} activePage={activePage} />
+      <div className="min-h-screen bg-white text-slate-900 antialiased">
+        <SeoManager activeBrand={activeBrand} activePage={activePage} />
+        <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-8 lg:px-10">
+            <button onClick={() => navigate('inicio')} className="flex min-h-11 items-center gap-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#07BE8A] focus:ring-offset-2" aria-label="Ir al inicio de MudanzaPro">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#06434A] text-white"><Truck className="h-5 w-5" /></span>
+              <span className="text-lg font-black tracking-tight text-[#06434A]">MudanzaPro</span>
+            </button>
+            <nav className="hidden items-center gap-1 md:flex" aria-label="Navegación principal">
+              <button onClick={() => navigate('calculadora')} className="rounded-lg px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#06434A]">Calcular</button>
+              <button onClick={() => navigate('checklist')} className="rounded-lg px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#06434A]">Organizar</button>
+              <button onClick={() => navigate('servicios')} className="rounded-lg px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#06434A]">Servicios</button>
+              <button onClick={() => navigate('faq')} className="rounded-lg px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#06434A]">Preguntas</button>
+              <button onClick={() => navigate('calculadora')} className="ml-2 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#06434A] px-4 text-sm font-extrabold text-white hover:bg-[#05373D]">Empezar <ArrowRight className="h-4 w-4" /></button>
+            </nav>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="grid h-11 w-11 place-items-center rounded-xl text-[#06434A] hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#07BE8A] md:hidden" aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={mobileOpen}>
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+          {mobileOpen && <div className="border-t border-slate-100 bg-white px-5 py-4 md:hidden"><div className="grid gap-1">
+            {[['calculadora','Calcular mi mudanza'],['checklist','Organizar'],['servicios','Servicios'],['zonas','Recorridos'],['faq','Preguntas frecuentes']].map(([id,label]) => <button key={id} onClick={() => navigate(id)} className="min-h-11 rounded-xl px-3 text-left text-sm font-bold text-slate-700 hover:bg-slate-50">{label}</button>)}
+          </div></div>}
+        </header>
 
-      {/* Interactive header & branding controller */}
-      <Header 
-        activeBrand={activeBrand} 
-        onBrandChange={handleBrandChange}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        leadsCount={leads.length}
-        activePage={activePage}
-        onActivePageChange={setActivePage}
-        onPrefetch={prefetchComponent}
-      />
+        <main className="min-h-[60vh]">
+          <AnimatePresence mode="wait">
+            <motion.div key={`${viewMode}-${activePage}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .18 }}>
+              <React.Suspense fallback={<LoadingSpinner />}>{renderPage()}</React.Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </main>
 
-      {/* Dynamic SEO Breadcrumbs Navigation */}
-      <Breadcrumbs 
-        activeBrand={activeBrand}
-        activeBrandId={activeBrandId}
-        activePage={activePage}
-        onBrandSelect={setActiveBrandId}
-        onPageSelect={setActivePage}
-      />
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={viewMode === 'dashboard' ? 'dashboard' : activePage}
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -15 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        >
-          <main className="min-h-[60vh]">
-            <React.Suspense fallback={<LoadingSpinner />}>
-              {viewMode === 'dashboard' ? (
-                <LeadManager 
-                  leads={leads} 
-                  onUpdateLeadStatus={handleUpdateLeadStatus} 
-                  onDeleteLead={handleDeleteLead} 
-                />
-              ) : (
-                <>
-                  {activePage === 'inicio' && (
-              <div className="space-y-16 pb-16">
-                {/* Main hero showcase with zone interaction */}
-                <Hero 
-                  activeBrand={activeBrand}
-                  onZoneSelect={(zone) => {
-                    setSelectedGeographicZone(zone);
-                    setActivePage('directorio');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }} 
-                  onPageSelect={setActivePage}
-                  onPrefetch={prefetchComponent}
-                />
-
-                {/* Mendoza Portal Bento Grid Navigation */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="text-center max-w-3xl mx-auto mb-10">
-                    <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest block mb-1">MÓDULOS DE SERVICIOS EN MENDOZA</span>
-                    <h2 className="text-3xl font-black text-gray-900 tracking-tight sm:text-4xl">
-                      Portal Profesional de Mudanzas
-                    </h2>
-                    <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-                      Explora cada herramienta interactiva diseñada para planificar, cotizar y ejecutar traslados seguros y económicos en toda la provincia.
-                    </p>
-                  </div>
-
-                  <motion.div 
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-80px" }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  >
-                    {/* Card 1: Calculator */}
-                    <motion.button 
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }} 
-                      onClick={() => { setActivePage('calculadora'); window.scrollTo({ top: 0 }); }}
-                      onMouseEnter={() => prefetchComponent('QuoteCalculator')}
-                      onFocus={() => prefetchComponent('QuoteCalculator')}
-                      className="bg-white border border-gray-100 hover:border-amber-500/50 p-6 rounded-3xl text-left transition duration-350 hover:shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-amber-500/20 w-full"
-                    >
-                      <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl w-fit group-hover:bg-amber-500 group-hover:text-gray-950 transition duration-350">
-                        <Calculator className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-900 mt-4 group-hover:text-amber-600 transition">
-                        Cotizador Virtual
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Estima el costo exacto de tu mudanza en Mendoza en base al volumen del mobiliario y distancia en kilómetros.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-black text-amber-600 mt-4 group-hover:translate-x-1 transition-transform">
-                        <span>CALCULAR COSTOS</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </motion.button>
-
-                    {/* Card 2: Directory */}
-                    <motion.button 
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }} 
-                      onClick={() => { setActivePage('directorio'); window.scrollTo({ top: 0 }); }}
-                      onMouseEnter={() => {
-                        prefetchComponent('RecommendedCompanies');
-                        prefetchComponent('DepartmentsGrid');
-                      }}
-                      onFocus={() => {
-                        prefetchComponent('RecommendedCompanies');
-                        prefetchComponent('DepartmentsGrid');
-                      }}
-                      className="bg-white border border-gray-100 hover:border-emerald-500/50 p-6 rounded-3xl text-left transition duration-350 hover:shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-full"
-                    >
-                      <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl w-fit group-hover:bg-emerald-500 group-hover:text-white transition duration-350">
-                        <Award className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-900 mt-4 group-hover:text-emerald-600 transition">
-                        Directorio de Empresas
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Busca, filtra y compara empresas de mudanzas y transporte certificadas con choferes habilitados en Mendoza.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-black text-emerald-600 mt-4 group-hover:translate-x-1 transition-transform">
-                        <span>VER EMPRESAS</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </motion.button>
-
-                    {/* Card 3: Services */}
-                    <motion.button 
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }} 
-                      onClick={() => { setActivePage('servicios'); window.scrollTo({ top: 0 }); }}
-                      onMouseEnter={() => prefetchComponent('ServicesSection')}
-                      onFocus={() => prefetchComponent('ServicesSection')}
-                      className="bg-white border border-gray-100 hover:border-indigo-500/50 p-6 rounded-3xl text-left transition duration-350 hover:shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-full"
-                    >
-                      <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl w-fit group-hover:bg-indigo-500 group-hover:text-white transition duration-350">
-                        <Truck className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-900 mt-4 group-hover:text-indigo-600 transition">
-                        Servicios & Tarifas
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Conoce las tarifas sugeridas de mudanzas básicas, peones de carga, mudanzas residenciales y embalaje profesional.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-black text-indigo-600 mt-4 group-hover:translate-x-1 transition-transform">
-                        <span>REVISAR TARIFAS</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </motion.button>
-
-                    {/* Card 4: Checklist */}
-                    <motion.button 
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }} 
-                      onClick={() => { setActivePage('checklist'); window.scrollTo({ top: 0 }); }}
-                      onMouseEnter={() => prefetchComponent('Checklist')}
-                      onFocus={() => prefetchComponent('Checklist')}
-                      className="bg-white border border-gray-100 hover:border-orange-500/50 p-6 rounded-3xl text-left transition duration-350 hover:shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-full"
-                    >
-                      <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl w-fit group-hover:bg-orange-500 group-hover:text-white transition duration-350">
-                        <ClipboardList className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-900 mt-4 group-hover:text-orange-600 transition">
-                        Checklist Organizador
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Cronograma interactivo semana a semana para organizar el embalaje y no olvidar nada en el proceso de mudanza.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-black text-orange-600 mt-4 group-hover:translate-x-1 transition-transform">
-                        <span>PLANIFICAR MUDANZA</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </motion.button>
-
-                    {/* Card 5: Coverage Grid */}
-                    <motion.button 
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }} 
-                      onClick={() => { setActivePage('zonas'); window.scrollTo({ top: 0 }); }}
-                      onMouseEnter={() => prefetchComponent('DepartmentsGrid')}
-                      onFocus={() => prefetchComponent('DepartmentsGrid')}
-                      className="bg-white border border-gray-100 hover:border-rose-500/50 p-6 rounded-3xl text-left transition duration-350 hover:shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-rose-500/20 w-full"
-                    >
-                      <div className="p-3 bg-rose-50 text-rose-500 rounded-2xl w-fit group-hover:bg-rose-500 group-hover:text-white transition duration-350">
-                        <MapPin className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-900 mt-4 group-hover:text-rose-600 transition">
-                        Zonas de Cobertura
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Verifica el alcance geográfico de mudanzas en Ciudad de Mendoza, Godoy Cruz, Luján, Guaymallén, San Rafael y más.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-black text-rose-600 mt-4 group-hover:translate-x-1 transition-transform">
-                        <span>VER DEPARTAMENTOS</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </motion.button>
-
-                    {/* Card 6: FAQ */}
-                    <motion.button 
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }} 
-                      onClick={() => { setActivePage('faq'); window.scrollTo({ top: 0 }); }}
-                      onMouseEnter={() => prefetchComponent('FAQSection')}
-                      onFocus={() => prefetchComponent('FAQSection')}
-                      className="bg-white border border-gray-100 hover:border-sky-500/50 p-6 rounded-3xl text-left transition duration-350 hover:shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-sky-500/20 w-full"
-                    >
-                      <div className="p-3 bg-sky-50 text-sky-600 rounded-2xl w-fit group-hover:bg-sky-500 group-hover:text-white transition duration-350">
-                        <HelpCircle className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-900 mt-4 group-hover:text-sky-600 transition">
-                        Preguntas Frecuentes
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        Respuestas sobre seguros de traslado, mudanzas compartidas de Mendoza a Buenos Aires, y facturación comercial.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-black text-sky-600 mt-4 group-hover:translate-x-1 transition-transform">
-                        <span>LEER PREGUNTAS</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </motion.button>
-                  </motion.div>
-                </section>
-
-                {/* Featured Brands Section - Perfect for Directory Home (empresasdemudanzas.com.ar) */}
-                {activeBrandId === 'empresas' && (
-                  <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-linear-to-br from-emerald-950 to-slate-900 rounded-3xl p-8 sm:p-10 text-white relative overflow-hidden shadow-xl border border-emerald-500/20">
-                      <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-5 bg-[radial-gradient(#10b981_1px,transparent_1px)] bg-size-[16px_16px] hidden lg:block" />
-                      <div className="space-y-6 relative z-10">
-                        <div className="space-y-2">
-                          <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-[10px] font-black uppercase tracking-wider">
-                            MARCAS DESTACADAS EN NUESTRO DIRECTORIO
-                          </span>
-                          <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                            Portales Dedicados de las Marcas Líderes
-                          </h3>
-                          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                            Accede de forma directa a los cotizadores virtuales, tarifas en tiempo real y coberturas logísticas de nuestras empresas recomendadas con mayor reputación.
-                          </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                          {/* Card Mendoza */}
-                          <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-amber-500" />
-                                <h4 className="text-sm font-black text-white">Mudanzas Mendoza</h4>
-                              </div>
-                              <p className="text-[11px] text-slate-400 leading-relaxed">
-                                Expertos en mudanzas y traslados residenciales de alta calidad dentro de la provincia de Mendoza y traslados al Valle de Uco o San Rafael. 4.9★ estrellas.
-                              </p>
-                            </div>
-                            <button
-                              onClick={(e: React.MouseEvent) => {
-                                e.preventDefault();
-                                setActiveBrandId('mendoza');
-                                setActivePage('inicio');
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                              }}
-                              className="px-4 py-2.5 bg-amber-500 text-gray-950 font-black text-[11px] uppercase tracking-wider rounded-lg hover:bg-amber-400 transition cursor-pointer text-center flex items-center justify-center gap-1.5"
-                            >
-                              <Globe className="w-3.5 h-3.5" />
-                              <span>Entrar al Portal de Mendoza</span>
-                            </button>
-                          </div>
-
-                          {/* Card Miranda */}
-                          <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-sky-500" />
-                                <h4 className="text-sm font-black text-white">Mudanzas Miranda</h4>
-                              </div>
-                              <p className="text-[11px] text-slate-400 leading-relaxed">
-                                El transportista más seguro y confiable de Zona Norte, GBA y CABA. Especialistas en embalaje premium, traslados corporativos y pianos de alta gama.
-                              </p>
-                            </div>
-                            <button
-                              onClick={(e: React.MouseEvent) => {
-                                e.preventDefault();
-                                setActiveBrandId('miranda');
-                                setActivePage('inicio');
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                              }}
-                              className="px-4 py-2.5 bg-sky-700 text-white font-black text-[11px] uppercase tracking-wider rounded-lg hover:bg-sky-600 transition cursor-pointer text-center flex items-center justify-center gap-1.5"
-                            >
-                              <Globe className="w-3.5 h-3.5" />
-                              <span>Entrar al Portal de Miranda</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* Quick Trust Highlights Row */}
-                <section className="bg-white py-12 border-y border-gray-100">
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <p className="text-xs font-black text-gray-600 uppercase tracking-widest mb-6">EL PORTAL DE MUDANZAS MÁS CONFIABLE DE LA PROVINCIA</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      <div>
-                        <p className="text-3xl sm:text-4xl font-black text-gray-900">4.9<span className="text-amber-500">★</span></p>
-                        <p className="text-xs text-gray-500 font-bold mt-1">Calificación promedio</p>
-                      </div>
-                      <div>
-                        <p className="text-3xl sm:text-4xl font-black text-gray-900">100%</p>
-                        <p className="text-xs text-gray-500 font-bold mt-1">Empresas verificadas</p>
-                      </div>
-                      <div>
-                        <p className="text-3xl sm:text-4xl font-black text-gray-900">+12k</p>
-                        <p className="text-xs text-gray-500 font-bold mt-1">Familias trasladadas</p>
-                      </div>
-                      <div>
-                        <p className="text-3xl sm:text-4xl font-black text-gray-900">0%</p>
-                        <p className="text-xs text-gray-500 font-bold mt-1">Costos ocultos</p>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Real Verified Positive Testimonials (Social Proof) */}
-                <TestimonialsSection />
-
-                {/* High Converting Banner on Home */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="bg-linear-to-br from-gray-900 to-slate-900 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-lg">
-                    <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-5 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] bg-size-[16px_16px] hidden lg:block" />
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                      {/* Left Side: Detailed volume estimation */}
-                      <div className="lg:col-span-6 space-y-4">
-                        <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-[10px] font-black uppercase tracking-wider">COTIZADOR COMPLETO</span>
-                        <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">¿Querés un cálculo preciso en m³?</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed">
-                          Usa nuestro cotizador interactivo. Podrás seleccionar tus muebles uno a uno, calcular el volumen exacto en metros cúbicos y recibir opciones de tarifas sugeridas de inmediato según el nivel de servicio que elijas.
-                        </p>
-                        <button 
-                          onClick={() => { setActivePage('calculadora'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className="px-5 py-3.5 bg-amber-500 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl hover:bg-amber-400 transition shadow-xs cursor-pointer inline-flex items-center gap-2"
-                        >
-                          <Calculator className="w-4 h-4" /> Comenzar Cotización Virtual
-                        </button>
-                      </div>
-
-                      {/* Right Side: Fast WhatsApp inquiry */}
-                      <div className="lg:col-span-6 bg-white/5 border border-white/10 p-6 rounded-2xl space-y-4">
-                        <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                          <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">VÍA EXPRESS</span>
-                          <span className="text-[9px] bg-emerald-500/10 text-emerald-300 font-extrabold px-2 py-0.5 rounded-full uppercase">PRESUPUESTO POR WHATSAPP</span>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1">Tu Nombre</label>
-                            <input 
-                              type="text"
-                              value={waName}
-                              onChange={(e) => handleWaNameChange(e.target.value)}
-                              placeholder="Ej. Juan Pérez"
-                              className="w-full bg-white/5 border border-white/10 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-xs font-semibold text-white focus:outline-none transition-all duration-150"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1">¿Qué necesitás mudar y de dónde a dónde?</label>
-                            <textarea 
-                              rows={2}
-                              value={waMsg}
-                              onChange={(e) => handleWaMsgChange(e.target.value)}
-                              placeholder="Ej. Traslado de heladera de Godoy Cruz a Las Heras"
-                              className="w-full bg-white/5 border border-white/10 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-xs font-semibold text-white focus:outline-none transition-all duration-150 resize-none"
-                            />
-                            
-                            {/* Smart hints */}
-                            {(() => {
-                              const hint = getWaMsgHint();
-                              if (!hint) return null;
-                              return (
-                                <div className={`p-2 rounded-lg text-[9px] mt-2 border leading-relaxed font-bold animate-fade-in ${
-                                  hint.type === 'success' 
-                                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' 
-                                    : 'bg-amber-500/10 border-amber-500/20 text-amber-300'
-                                }`}>
-                                  {hint.text}
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                          <button
-                            onClick={() => {
-                              const nameErr = !waName.trim() ? 'El nombre es obligatorio.' : waName.trim().length < 3 ? 'El nombre debe tener al menos 3 caracteres.' : '';
-                              const msgErr = !waMsg.trim() ? 'La consulta es obligatoria.' : waMsg.trim().length < 10 ? 'La consulta debe tener al menos 10 caracteres.' : '';
-
-                              if (nameErr || msgErr) {
-                                setWaErrors({ name: nameErr, msg: msgErr });
-                                return;
-                              }
-
-                              const text = `Hola ${activeBrand.name}! Mi nombre es ${waName}. Tengo una consulta rápida: ${waMsg}`;
-                              window.open(`https://wa.me/${activeBrand.phone.replace(/[^\d]/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
-                            }}
-                            className="w-full py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
-                          >
-                            <Phone className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>Solicitar por WhatsApp</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </section>
-              </div>
-            )}
-
-            {activePage === 'calculadora' && (
-              <QuoteCalculator 
-                activeBrand={activeBrand} 
-                onNewLeadCreated={handleNewLeadCreated}
-                onZoneSelect={(zone) => {
-                  setSelectedGeographicZone(zone);
-                }}
-                onViewModeChange={setViewMode}
-              />
-            )}
-
-            {activePage === 'servicios' && (
-              <ServicesSection onPageSelect={setActivePage} />
-            )}
-
-            {activePage === 'directorio' && (
-              <RecommendedCompanies 
-                selectedGeographicZone={selectedGeographicZone} 
-                onZoneSelect={setSelectedGeographicZone}
-                onBrandSelect={(brandId) => {
-                  setActiveBrandId(brandId);
-                  setActivePage('inicio');
-                }}
-                onViewModeChange={setViewMode}
-              />
-            )}
-
-            {activePage === 'zonas' && (
-              <DepartmentsGrid 
-                selectedGeographicZone={selectedGeographicZone} 
-                onZoneSelect={(zone) => {
-                  setSelectedGeographicZone(zone);
-                  setActivePage('directorio');
-                }}
-              />
-            )}
-
-            {activePage === 'checklist' && (
-              <Checklist />
-            )}
-
-            {activePage === 'faq' && (
-              <FAQSection />
-            )}
-
-            {activePage === 'contacto' && (
-              /* DIRECT CONTACT FORM */
-              <section id="contacto-directo" className="bg-white py-16 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto bg-slate-50 border border-gray-100 p-8 sm:p-12 rounded-3xl grid grid-cols-1 md:grid-cols-2 gap-10 shadow-xs animate-fade-in">
-                  <div className="space-y-6">
-                    <div>
-                      <span className="text-xs font-black text-amber-600 uppercase tracking-widest block">¿TIENES UNA CONSULTA ESPECÍFICA?</span>
-                      <h3 className="text-2xl font-black text-gray-900 mt-1">Hablemos por Canales Oficiales</h3>
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                        ¿Tienes requerimientos especiales de carga, necesitas factura comercial de tipo A, o buscas contratar un traslado de larga distancia nacional? Comunícate directo.
-                      </p>
-                    </div>
-
-                    <div className="space-y-4 text-xs font-semibold">
-                      <a 
-                        id="direct-phone-link"
-                        href={`tel:${activeBrand.phone.replace(/\s+/g, '')}`} 
-                        className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 hover:border-amber-200 hover:bg-amber-50/5 transition text-gray-800"
-                      >
-                        <Phone className="w-5 h-5 text-emerald-600 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold leading-none">TELÉFONO PRINCIPAL</p>
-                          <p className="font-extrabold text-gray-950 mt-1">{activeBrand.phone}</p>
-                        </div>
-                      </a>
-
-                      <a 
-                        id="direct-email-link"
-                        href={`mailto:${activeBrand.email}`} 
-                        className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 hover:border-amber-200 hover:bg-amber-50/5 transition text-gray-800"
-                      >
-                        <Mail className="w-5 h-5 text-amber-600 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold leading-none">EMAIL CORPORATIVO</p>
-                          <p className="font-extrabold text-gray-950 mt-1">{activeBrand.email}</p>
-                        </div>
-                      </a>
-
-                      <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 text-gray-800">
-                        <MapPin className="w-5 h-5 text-rose-500 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold leading-none">DOMICILIO FISCAL / COCHERAS</p>
-                          <p className="font-extrabold text-gray-950 mt-1">{activeBrand.address}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white p-6 rounded-2xl border border-gray-200/60 shadow-3xs space-y-4">
-                    <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                      <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wide">Mensaje Rápido de WhatsApp</h4>
-                      <span className="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full uppercase">Soporte Inmediato</span>
-                    </div>
-                    <div className="space-y-3 text-xs">
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 block mb-1 uppercase flex justify-between items-center">
-                          <span>Tu Nombre</span>
-                          {waName.trim().length >= 3 && !waErrors.name && (
-                            <span className="text-[9px] text-emerald-600 font-extrabold flex items-center gap-0.5 animate-fade-in"> 
-                              <Check className="w-2.5 h-2.5 stroke-[3]" /> Listo
-                            </span>
-                          )}
-                        </label>
-                        <input 
-                          type="text" 
-                          id="whatsapp-name-input"
-                          value={waName}
-                          onChange={(e) => handleWaNameChange(e.target.value)}
-                          placeholder="Ej. Martín" 
-                          className={`w-full bg-slate-50 border ${waErrors.name ? 'border-red-400 focus:ring-red-500 bg-red-50/10' : waName.trim().length >= 3 ? 'border-emerald-400 focus:ring-emerald-500 bg-emerald-50/10' : 'border-gray-200 focus:ring-amber-500'} rounded-xl px-3.5 py-2.5 font-semibold text-gray-700 focus:outline-none focus:ring-1 transition-all duration-150`}
-                        />
-                        {waErrors.name && (
-                          <p className="text-[10px] text-red-500 font-semibold flex items-center gap-1 mt-1 animate-fade-in"> 
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {waErrors.name}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 block mb-1 uppercase flex justify-between items-center">
-                          <span>Tu consulta rápida</span>
-                          {waMsg.trim().length >= 10 && !waErrors.msg && (
-                            <span className="text-[9px] text-emerald-600 font-extrabold flex items-center gap-0.5 animate-fade-in"> 
-                              <Check className="w-2.5 h-2.5 stroke-[3]" /> Listo
-                            </span>
-                          )}
-                        </label>
-                        <textarea 
-                          rows={3} 
-                          id="whatsapp-msg-input"
-                          value={waMsg}
-                          onChange={(e) => handleWaMsgChange(e.target.value)}
-                          placeholder="Ej. Hola! Necesito trasladar un piano de cola desde Godoy Cruz a Las Heras mañana." 
-                          className={`w-full bg-slate-50 border ${waErrors.msg ? 'border-red-400 focus:ring-red-500 bg-red-50/10' : waMsg.trim().length >= 10 ? 'border-emerald-400 focus:ring-emerald-500 bg-emerald-50/10' : 'border-gray-200 focus:ring-amber-500'} rounded-xl px-3.5 py-2.5 font-semibold text-gray-700 focus:outline-none focus:ring-1 transition-all duration-150`}
-                        />
-                        {waErrors.msg && (
-                          <p className="text-[10px] text-red-500 font-semibold flex items-center gap-1 mt-1 animate-fade-in"> 
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {waErrors.msg}
-                          </p>
-                        )}
-                        {/* Real-time lead assistant hint bar */}
-                        {(() => {
-                          const hint = getWaMsgHint();
-                          if (!hint) return null;
-                          return (
-                            <div className={`p-2.5 rounded-lg text-[10px] mt-2 border transition duration-150 animate-fade-in leading-relaxed font-semibold ${
-                              hint.type === 'success' 
-                                ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
-                                : 'bg-amber-50 border-amber-100 text-amber-800'
-                            }`}>
-                              {hint.text}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                      <button
-                        id="direct-whatsapp-btn"
-                        onClick={() => {
-                          const nameErr = !waName.trim() ? 'El nombre es obligatorio.' : waName.trim().length < 3 ? 'El nombre debe tener al menos 3 caracteres.' : '';
-                          const msgErr = !waMsg.trim() ? 'La consulta rápida es obligatoria.' : waMsg.trim().length < 10 ? 'La consulta debe tener al menos 10 caracteres para mayor claridad.' : '';
-
-                          if (nameErr || msgErr) {
-                            setWaErrors({ name: nameErr, msg: msgErr });
-                            return;
-                          }
-
-                          const text = `Hola ${activeBrand.name}! Mi nombre es ${waName}. Tengo una consulta: ${waMsg}`;
-                          window.open(`https://wa.me/${activeBrand.phone.replace(/[^\d]/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
-                        }}
-                        className="w-full py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <ArrowUpRight className="w-4 h-4" /> Enviar Consulta por WhatsApp
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-                </>
-              )}
-            </React.Suspense>
-          </main>
-        </motion.div>
-      </AnimatePresence>
-
-      <WhatsAppWidget activeBrand={activeBrand} viewMode={viewMode} />
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-950">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 text-xs border-b border-gray-800 pb-8 mb-8">
-          <div className="md:col-span-3 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-500 text-gray-950 flex items-center justify-center font-black">
-                <Truck className="w-5 h-5" aria-hidden="true" />
-              </div>
-              <span className="text-base font-extrabold text-white tracking-tight">{activeBrand.name}</span>
+        <footer className="border-t border-slate-200 bg-[#FAF9F5]">
+          <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-xl"><div className="flex items-center gap-2 text-[#06434A]"><span className="grid h-8 w-8 place-items-center rounded-lg bg-[#06434A] text-white"><Truck className="h-4 w-4" /></span><span className="font-black">MudanzaPro</span></div><p className="mt-3 text-sm leading-6 text-slate-600">Herramientas para entender, calcular y preparar una mudanza en Mendoza.</p></div>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-slate-600"><button onClick={() => navigate('calculadora')}>Calcular</button><button onClick={() => navigate('checklist')}>Organizar</button><button onClick={() => navigate('faq')}>Preguntas</button></div>
             </div>
-            <p className="text-gray-400 leading-relaxed">
-              Portal SEO de mudanzas y servicios de relocalización para Mendoza. Conectando familias y empresas con servicios de transporte confiables autorizados municipalmente en CABA y Mendoza.
-            </p>
+            <div className="mt-8 flex flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-500 sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} MudanzaPro</span><span>Herramienta independiente de planificación.</span></div>
           </div>
-
-          <div className="md:col-span-3 space-y-3">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wide">Secciones Adicionales</h4>
-            <div className="grid grid-cols-1 gap-2 text-gray-400 font-medium">
-              <button
-                onClick={() => { setActivePage('servicios'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Ver tarifas y servicios de mudanzas en Mendoza"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
-                Servicios y Tarifas
-              </button>
-              <button
-                onClick={() => { setActivePage('zonas'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Ver zonas de cobertura geográfica y departamentos de Mendoza"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" aria-hidden="true" />
-                Zonas de Cobertura
-              </button>
-              <button
-                onClick={() => { setActivePage('checklist'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Ir al planificador interactivo y checklist de mudanza"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-                Checklist de Mudanza
-              </button>
-              <button
-                onClick={() => { setActivePage('faq'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Ir a preguntas frecuentes y respuestas de mudanza"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" aria-hidden="true" />
-                Preguntas Frecuentes (FAQ)
-              </button>
-            </div>
-          </div>
-
-          <div className="md:col-span-3 space-y-3">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wide">Sitios SEO Relacionados</h4>
-            <div className="grid grid-cols-1 gap-2 text-gray-400 font-medium">
-              <button
-                onClick={() => handleBrandChange('mendoza')} 
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Cambiar al sitio de Mudanzas Mendoza"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden="true" />
-                Mudanzas Mendoza (Local Mendoza)
-              </button>
-              <button
-                onClick={() => handleBrandChange('miranda')} 
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Cambiar al sitio de Mudanzas Miranda"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" aria-hidden="true" />
-                Mudanzas Miranda (GBA & CABA)
-              </button>
-              <button
-                onClick={() => handleBrandChange('empresas')} 
-                className="text-left hover:text-white transition flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                aria-label="Cambiar al directorio nacional de empresas de mudanzas"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                Directorio Empresas de Mudanzas (Nacional)
-              </button>
-            </div>
-          </div>
-
-          <div className="md:col-span-3 space-y-3 text-gray-400 leading-relaxed">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wide">Cumplimiento Legal</h4>
-            <p className="leading-relaxed">
-              • Choferes profesionales habilitados con registro nacional de cargas (LNH).<br />
-              • Unidades de carga aseguradas con coberturas civiles de transportistas.<br />
-              • Respeto riguroso de normativas municipales de estacionamiento urbano.
-            </p>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-gray-450">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-gray-400">
-            <span>© {new Date().getFullYear()} {activeBrand.name}. Todos los derechos reservados.</span>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
     </HelmetProvider>
   );
 }
