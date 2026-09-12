@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
 type LatLng = {
   latitude: number;
   longitude: number;
@@ -40,7 +38,7 @@ function toGoogleLocation(location: RouteLocation) {
   return { address: location.address!.trim() };
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -121,8 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : null,
       distanceText:
         route.localizedValues?.distance?.text ?? `${distanceKm} km`,
-      durationText:
-        route.localizedValues?.duration?.text ?? null,
+      durationText: route.localizedValues?.duration?.text ?? null,
       source: "google-routes",
     });
   } catch (error) {
