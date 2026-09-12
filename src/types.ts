@@ -54,7 +54,7 @@ export interface QuoteLead {
   floorOrigin?: number;
   floorDest?: number;
   scheduledDate: string;
-  estimatedCost?: number;
+  estimatedCost: number;
   status: LeadStatus;
   notes?: string;
   routeDurationMinutes?: number;
