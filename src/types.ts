@@ -31,7 +31,7 @@ export interface FurnitureItem {
   id: string;
   name: string;
   category: FurnitureCategory;
-  volumePoints: number; // For volume calculation
+  volumePoints: number;
 }
 
 export interface QuoteLead {
@@ -48,15 +48,16 @@ export interface QuoteLead {
   moveSize: MoveSize;
   furnitureList: { itemId: string; count: number }[];
   servicesSelected: string[];
-  distanceKm: number;
-  hasElevatorOrigin: boolean;
-  hasElevatorDest: boolean;
-  floorOrigin: number;
-  floorDest: number;
+  distanceKm?: number;
+  hasElevatorOrigin?: boolean;
+  hasElevatorDest?: boolean;
+  floorOrigin?: number;
+  floorDest?: number;
   scheduledDate: string;
-  estimatedCost: number;
+  estimatedCost?: number;
   status: LeadStatus;
   notes?: string;
+  routeDurationMinutes?: number;
 }
 
 export interface BrandConfig {
