@@ -1,4 +1,5 @@
 import { ComponentLoaderKeys } from "./componentTypes";
+
 export interface RouteConfig {
   id: string;
   label: string;
@@ -7,73 +8,81 @@ export interface RouteConfig {
   seoDescription?: string;
 }
 
+/**
+ * MudanzaPro is the action/planning layer of the cobranding architecture:
+ * Mudanzas en Mendoza = QUÉ SABER
+ * MudanzaPro = QUÉ HACER / RESOLVER
+ * Mudanzas Miranda = QUIÉN / proveedor
+ *
+ * This route map therefore avoids positioning the app as a provider directory.
+ */
 export const ALL_ROUTES: RouteConfig[] = [
   {
     id: "inicio",
     label: "Inicio",
-    seoTitle: "Mudanzas Mendoza - Portal SEO Local",
+    seoTitle: "MudanzaPro — Planificá y prepará tu mudanza en Mendoza",
     seoDescription:
-      "Portal de mudanzas en Mendoza. Calcula m³ de tu mudanza en tiempo real, compara empresas verificadas y solicita presupuestos.",
+      "Herramientas para planificar una mudanza en Mendoza: estimación, servicios, zonas, checklist y preparación de la solicitud de presupuesto.",
   },
   {
     id: "calculadora",
     label: "Calculadora",
     prefetchKeys: ["QuoteCalculator"],
-    seoTitle: "Calculadora de Mudanzas - Estima m³ en Mendoza",
+    seoTitle: "Calculadora de Mudanza en Mendoza | MudanzaPro",
     seoDescription:
-      "Calcula el volumen en metros cúbicos de tus muebles y obtén un presupuesto de mudanza estimado al instante.",
+      "Estimá el volumen de tu mudanza y organizá los datos necesarios para solicitar un presupuesto.",
   },
   {
     id: "servicios",
     label: "Servicios",
     prefetchKeys: ["ServicesSection"],
-    seoTitle: "Tarifas y Servicios de Mudanzas en Mendoza",
+    seoTitle: "Servicios de Mudanza en Mendoza | MudanzaPro",
     seoDescription:
-      "Conoce los precios sugeridos para traslados, carga, descarga y embalaje profesional en toda la provincia.",
+      "Conocé los tipos de servicios y variables que conviene considerar antes de pedir una cotización.",
   },
   {
     id: "directorio",
-    label: "Directorio",
+    label: "Soluciones",
     prefetchKeys: ["RecommendedCompanies", "DepartmentsGrid"],
-    seoTitle: "Empresas de Mudanzas Recomendadas en Mendoza",
+    seoTitle: "Soluciones para tu Mudanza en Mendoza | MudanzaPro",
     seoDescription:
-      "Directorio completo de empresas recomendadas y verificadas de mudanzas en Mendoza.",
+      "Elegí el próximo paso: estimar, planificar y preparar tu solicitud de presupuesto. MudanzaPro no es un directorio de prestadores.",
   },
   {
     id: "zonas",
     label: "Zonas",
     prefetchKeys: ["DepartmentsGrid"],
-    seoTitle: "Zonas de Cobertura de Mudanzas Mendoza",
+    seoTitle: "Zonas y traslados en Mendoza | MudanzaPro",
     seoDescription:
-      "Consulta el alcance del servicio de mudanzas en Godoy Cruz, Guaymallén, Luján de Cuyo, Maipú y San Rafael.",
+      "Consultá información territorial útil para planificar un traslado dentro de Mendoza.",
   },
   {
     id: "checklist",
     label: "Checklist",
     prefetchKeys: ["Checklist"],
-    seoTitle: "Checklist Organizador de Mudanza - Plan paso a paso",
+    seoTitle: "Checklist para organizar una mudanza | MudanzaPro",
     seoDescription:
-      "Planifica y organiza tu mudanza semana a semana con nuestra lista de control interactiva y consejos de embalaje.",
+      "Organizá tareas, embalaje y decisiones de tu mudanza con una lista de control paso a paso.",
   },
   {
     id: "faq",
     label: "FAQ",
     prefetchKeys: ["FAQSection"],
-    seoTitle: "Preguntas Frecuentes sobre Mudanzas y Traslados",
+    seoTitle: "Preguntas frecuentes sobre mudanzas | MudanzaPro",
     seoDescription:
-      "Resolvemos tus dudas sobre seguros de traslado, mudanzas compartidas, peones de carga y facturación.",
+      "Respuestas prácticas para preparar y solicitar un presupuesto de mudanza.",
   },
   {
     id: "contacto",
-    label: "Contacto",
-    seoTitle: "Contacto - Mudanzas Mendoza",
+    label: "Presupuesto",
+    seoTitle: "Solicitar presupuesto de mudanza | MudanzaPro",
     seoDescription:
-      "Ponte en contacto con empresas autorizadas o con las oficinas centrales de mudanza para un servicio personalizado.",
+      "Prepará los datos de tu traslado para avanzar hacia una solicitud de presupuesto.",
   },
 ];
 
 export const ROUTES: RouteConfig[] = ALL_ROUTES.filter((r) =>
-  ["inicio", "calculadora", "directorio", "contacto"].includes(r.id),
+  ["inicio", "calculadora", "servicios", "directorio", "contacto"].includes(r.id),
 );
 
 export const VALID_PAGE_IDS = ALL_ROUTES.map((r) => r.id);
