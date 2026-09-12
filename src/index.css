@@ -1,5 +1,141 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light;
+  --mp-ink: #12383a;
+  --mp-ink-strong: #06434a;
+  --mp-accent: #07be8a;
+  --mp-accent-strong: #009966;
+  --mp-paper: #faf9f5;
+  --mp-surface: #ffffff;
+  --mp-surface-soft: #f3f7f5;
+  --mp-border: #dfe8e4;
+  --mp-muted: #647579;
+}
+
+html {
+  background: var(--mp-paper);
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body.mudanzapro-app {
+  margin: 0;
+  min-width: 320px;
+  background: var(--mp-paper) !important;
+  color: var(--mp-ink) !important;
+  color-scheme: light !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.mudanzapro-app::selection {
+  background: rgba(7, 190, 138, 0.22);
+  color: var(--mp-ink-strong);
+}
+
+body.mudanzapro-app button,
+body.mudanzapro-app a,
+body.mudanzapro-app input,
+body.mudanzapro-app textarea,
+body.mudanzapro-app select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.mudanzapro-app button:focus-visible,
+body.mudanzapro-app a:focus-visible,
+body.mudanzapro-app input:focus-visible,
+body.mudanzapro-app textarea:focus-visible,
+body.mudanzapro-app select:focus-visible {
+  outline: 2px solid var(--mp-accent) !important;
+  outline-offset: 3px;
+}
+
+/* Light-theme surface normalization for legacy/lazy-loaded views. */
+body.mudanzapro-app [class~="bg-black"],
+body.mudanzapro-app [class~="bg-gray-950"],
+body.mudanzapro-app [class~="bg-gray-900"],
+body.mudanzapro-app [class~="bg-slate-950"],
+body.mudanzapro-app [class~="bg-slate-900"] {
+  background-color: var(--mp-surface) !important;
+  color: var(--mp-ink-strong) !important;
+  border-color: var(--mp-border) !important;
+}
+
+body.mudanzapro-app [class~="border-gray-800"],
+body.mudanzapro-app [class~="border-slate-800"] {
+  border-color: var(--mp-border) !important;
+}
+
+body.mudanzapro-app [class~="text-gray-100"],
+body.mudanzapro-app [class~="text-gray-200"],
+body.mudanzapro-app [class~="text-gray-300"],
+body.mudanzapro-app [class~="text-slate-200"],
+body.mudanzapro-app [class~="text-slate-300"] {
+  color: #52676a !important;
+}
+
+/* Replace dark hero/panel treatment with calm light surfaces. */
+body.mudanzapro-app [class~="bg-[#06434A]"] {
+  background-color: var(--mp-surface-soft) !important;
+  color: var(--mp-ink-strong) !important;
+  border-color: rgba(6, 67, 74, 0.12) !important;
+}
+
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="text-white"],
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="text-white/90"],
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="text-white/80"],
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="text-white/70"] {
+  color: var(--mp-ink) !important;
+}
+
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="border-white\/10"],
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="border-white\/15"] {
+  border-color: rgba(6, 67, 74, 0.1) !important;
+}
+
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="bg-white\/10"],
+body.mudanzapro-app [class~="bg-[#06434A]"] [class~="bg-white\/5"] {
+  background-color: rgba(6, 67, 74, 0.06) !important;
+}
+
+/* Keep primary actions intentionally dark for contrast inside the light system. */
+body.mudanzapro-app button[class~="bg-[#06434A]"],
+body.mudanzapro-app a[class~="bg-[#06434A]"] {
+  background-color: var(--mp-ink-strong) !important;
+  color: white !important;
+  border-color: transparent !important;
+}
+
+body.mudanzapro-app button[class~="bg-[#07BE8A]"],
+body.mudanzapro-app a[class~="bg-[#07BE8A]"] {
+  background-color: var(--mp-accent) !important;
+  color: var(--mp-ink-strong) !important;
+}
+
+/* Form controls: white, tactile, and legible in light mode. */
+body.mudanzapro-app input,
+body.mudanzapro-app textarea,
+body.mudanzapro-app select {
+  background-color: var(--mp-surface) !important;
+  color: var(--mp-ink) !important;
+  border-color: var(--mp-border) !important;
+}
+
+body.mudanzapro-app input::placeholder,
+body.mudanzapro-app textarea::placeholder {
+  color: #89999a !important;
+}
+
+/* Subtle motion, without turning the interface into a visual effect demo. */
+body.mudanzapro-app button,
+body.mudanzapro-app a {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: ease-out;
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);
@@ -8,4 +144,3 @@
     transform: translateX(100%);
   }
 }
-
