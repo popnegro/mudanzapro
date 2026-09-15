@@ -52,7 +52,14 @@ export function validateLeadPayload(value: unknown): LeadPayload {
     throw new Error("Invalid numeric field.");
   }
 
-  const safeArray = (field: unknown) => (Array.isArray(field) ? field.slice(0, 100) : []);
+  const furnitureList = Array.isArray(input.furnitureList)
+    ? input.furnitureList
+        .filter((item): item is { itemId: string; count: number } => Boolean(item && typeof item.itemId === "string" && Number.isFinite(item.count)))
+        .slice(0, 100)
+    : [];
+  const servicesSelected = Array.isArray(input.servicesSelected)
+    ? input.servicesSelected.map(String).slice(0, 100)
+    : [];
 
   return {
     id: String(input.id ?? crypto.randomUUID()).slice(0, 100),
@@ -66,8 +73,8 @@ export function validateLeadPayload(value: unknown): LeadPayload {
     originAddress: String(input.originAddress ?? "").trim().slice(0, MAX_TEXT_LENGTH) || undefined,
     destinationAddress: String(input.destinationAddress ?? "").trim().slice(0, MAX_TEXT_LENGTH) || undefined,
     moveSize,
-    furnitureList: safeArray(input.furnitureList),
-    servicesSelected: safeArray(input.servicesSelected).map(String),
+    furnitureList,
+    servicesSelected,
     distanceKm: Number(input.distanceKm ?? 0),
     hasElevatorOrigin: typeof input.hasElevatorOrigin === "boolean" ? input.hasElevatorOrigin : undefined,
     hasElevatorDest: typeof input.hasElevatorDest === "boolean" ? input.hasElevatorDest : undefined,
