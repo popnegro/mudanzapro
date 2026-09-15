@@ -42,7 +42,10 @@ export function useLeads() {
     }
 
     setLeads((current) => {
-      const updated = [newLead, ...current.filter((lead) => lead.id !== newLead.id)];
+      const updated = [
+        newLead,
+        ...current.filter((lead) => lead.id !== newLead.id),
+      ];
       localStorage.setItem("mudanzas_leads", JSON.stringify(updated));
       return updated;
     });
