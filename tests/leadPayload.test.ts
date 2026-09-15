@@ -69,13 +69,34 @@ test("invalid move and date values are rejected", () => {
     () => validateLeadPayload({ ...validLead, scheduledDate: "10-10-2026" }),
     /Invalid scheduled date/,
   );
+  assert.throws(
+    () => validateLeadPayload({ ...validLead, scheduledDate: "2026-02-30" }),
+    /Invalid scheduled date/,
+  );
 });
 
-test("lead arrays are bounded", () => {
+test("invalid furniture items are discarded", () => {
+  const lead = validateLeadPayload({
+    ...validLead,
+    furnitureList: [
+      { itemId: "sofa", count: 1 },
+      { itemId: "", count: 1 },
+      { itemId: "table", count: -1 },
+      { itemId: "chair", count: 1.5 },
+      { itemId: "lamp", count: 101 },
+    ],
+  });
+
+  assert.deepEqual(lead.furnitureList, [{ itemId: "sofa", count: 1 }]);
+});
+
+test("lead arrays are bounded and service values are normalized", () => {
   const furnitureList = Array.from({ length: 150 }, (_, index) => ({ itemId: `item-${index}`, count: 1 }));
-  const servicesSelected = Array.from({ length: 150 }, (_, index) => `service-${index}`);
+  const servicesSelected = [" embalaje ", "", "  traslado  ", ...Array.from({ length: 150 }, (_, index) => `service-${index}`)];
   const lead = validateLeadPayload({ ...validLead, furnitureList, servicesSelected });
 
   assert.equal(lead.furnitureList.length, 100);
   assert.equal(lead.servicesSelected.length, 100);
+  assert.equal(lead.servicesSelected[0], "embalaje");
+  assert.equal(lead.servicesSelected[1], "traslado");
 });
