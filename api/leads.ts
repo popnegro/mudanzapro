@@ -15,7 +15,8 @@ export default async function handler(request: Request): Promise<Response> {
     return json({ error: "Method not allowed" }, 405);
   }
 
-  if (!process.env.DATABASE_URL) {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
     return json({ error: "Lead storage is not configured." }, 503);
   }
 
@@ -24,7 +25,7 @@ export default async function handler(request: Request): Promise<Response> {
     if (contentLength > 20_000) return json({ error: "Payload too large." }, 413);
 
     const payload = validateLeadPayload(await request.json());
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = neon(databaseUrl);
 
     await sql`
       INSERT INTO leads (
