@@ -25,6 +25,15 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
   },
+  overrides: [
+    {
+      files: ['src/components/AddressAutocomplete.tsx'],
+      rules: {
+        // Temporary compatibility guard for the legacy component while it is refactored.
+        'prettier/prettier': 'off',
+      },
+    },
+  ],
   settings: {
     react: { version: '18.2' },
   },

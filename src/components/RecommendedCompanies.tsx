@@ -4,6 +4,7 @@ import { Calculator, ClipboardList, MessageSquare, ArrowRight } from "lucide-rea
 interface RecommendedCompaniesProps {
   selectedGeographicZone?: string;
   onZoneSelect?: (zoneName: string) => void;
+  onViewModeChange?: (mode: "user" | "dashboard") => void;
 }
 
 /**
