@@ -1,29 +1,7 @@
 import type { QuoteLead } from "../types";
 
-export type LeadPayload = Pick<
-  QuoteLead,
-  | "id"
-  | "createdAt"
-  | "brand"
-  | "customerName"
-  | "email"
-  | "phone"
-  | "originDept"
-  | "destDept"
-  | "originAddress"
-  | "destinationAddress"
-  | "moveSize"
-  | "furnitureList"
-  | "servicesSelected"
-  | "distanceKm"
-  | "hasElevatorOrigin"
-  | "hasElevatorDest"
-  | "floorOrigin"
-  | "floorDest"
-  | "scheduledDate"
-  | "estimatedCost"
-  | "notes"
->;
+export type LeadPayload = Omit<QuoteLead, "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest"> &
+  Partial<Pick<QuoteLead, "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest">>;
 
 const MAX_TEXT_LENGTH = 500;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -54,7 +32,10 @@ export function validateLeadPayload(value: unknown): LeadPayload {
 
   const furnitureList = Array.isArray(input.furnitureList)
     ? input.furnitureList
-        .filter((item): item is { itemId: string; count: number } => Boolean(item && typeof item.itemId === "string" && Number.isFinite(item.count)))
+        .filter(
+          (item): item is { itemId: string; count: number } =>
+            Boolean(item && typeof item.itemId === "string" && Number.isFinite(item.count)),
+        )
         .slice(0, 100)
     : [];
   const servicesSelected = Array.isArray(input.servicesSelected)
