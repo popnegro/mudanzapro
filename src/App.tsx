@@ -210,7 +210,7 @@ export default function App() {
     switch (activePage) {
       case 'calculadora': return <QuoteCalculator activeBrand={activeBrand} onNewLeadCreated={handleNewLeadCreated} onZoneSelect={setSelectedGeographicZone} onViewModeChange={setViewMode} />;
       case 'servicios': return <ServicesSection onPageSelect={navigate} />;
-      case 'directorio': return <RecommendedCompanies selectedGeographicZone={selectedGeographicZone} onZoneSelect={setSelectedGeographicZone} onBrandSelect={() => navigate('inicio')} onViewModeChange={setViewMode} />;
+      case 'directorio': return <RecommendedCompanies selectedGeographicZone={selectedGeographicZone} onZoneSelect={setSelectedGeographicZone} onViewModeChange={setViewMode} />;
       case 'zonas': return <DepartmentsGrid selectedGeographicZone={selectedGeographicZone} onZoneSelect={(zone) => { setSelectedGeographicZone(zone); navigate('calculadora'); }} />;
       case 'checklist': return <Checklist />;
       case 'faq': return <FAQSection />;
