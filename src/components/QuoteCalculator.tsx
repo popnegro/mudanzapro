@@ -6,7 +6,7 @@ import AddressAutocomplete from "./AddressAutocomplete";
 
 interface QuoteCalculatorProps {
   activeBrand: BrandConfig;
-  onNewLeadCreated: (lead: QuoteLead) => void;
+  onNewLeadCreated: (lead: QuoteLead) => Promise<void>;
   onZoneSelect?: (zone: string) => void;
   onViewModeChange?: (mode: "user" | "dashboard") => void;
 }
@@ -23,11 +23,7 @@ const getRegionForDept = (id: string) => {
   return "Gran Mendoza";
 };
 
-export default function QuoteCalculator({
-  activeBrand,
-  onNewLeadCreated,
-  onZoneSelect,
-}: QuoteCalculatorProps) {
+export default function QuoteCalculator({ activeBrand, onNewLeadCreated, onZoneSelect }: QuoteCalculatorProps) {
   const [step, setStep] = useState(1);
   const [originAddress, setOriginAddress] = useState("");
   const [destinationAddress, setDestinationAddress] = useState("");
@@ -41,6 +37,7 @@ export default function QuoteCalculator({
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const distanceKm = useMemo(() => {
     if (originDept === destDept) return 8;
@@ -105,12 +102,12 @@ export default function QuoteCalculator({
     setStep((current) => Math.max(current - 1, 1));
   };
 
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!validateStep()) return;
+    if (submitting || !validateStep()) return;
     const option = MOVE_OPTIONS.find((item) => item.id === moveSize)!;
     const lead: QuoteLead = {
-      id: `lead-${Date.now()}`,
+      id: `lead-${crypto.randomUUID()}`,
       createdAt: new Date().toISOString(),
       brand: activeBrand.id,
       customerName: customerName.trim(),
@@ -133,8 +130,17 @@ export default function QuoteCalculator({
       status: "new",
       notes: notes.trim() || `Tamaño estimado: ${option.label}`,
     };
-    onNewLeadCreated(lead);
-    setSuccess(true);
+
+    setSubmitting(true);
+    setError("");
+    try {
+      await onNewLeadCreated(lead);
+      setSuccess(true);
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "No pudimos guardar la solicitud.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (success) {
@@ -196,7 +202,7 @@ export default function QuoteCalculator({
           {error && <p role="alert" className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p>}
           <div className="mt-7 flex gap-3">
             {step > 1 && <button type="button" onClick={back} className="min-h-11 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-[#06434A]"><ArrowLeft className="mr-1 inline h-4 w-4" /> Atrás</button>}
-            {step < 3 ? <button type="button" onClick={next} className="min-h-11 flex-1 rounded-xl bg-[#06434A] px-5 text-sm font-bold text-white transition hover:bg-[#07545c]">Continuar <ArrowRight className="ml-1 inline h-4 w-4" /></button> : <button type="submit" className="min-h-11 flex-1 rounded-xl bg-[#07BE8A] px-5 text-sm font-bold text-[#06434A] transition hover:bg-[#009966] hover:text-white">Solicitar presupuesto</button>}
+            {step < 3 ? <button type="button" onClick={next} className="min-h-11 flex-1 rounded-xl bg-[#06434A] px-5 text-sm font-bold text-white transition hover:bg-[#07545c]">Continuar <ArrowRight className="ml-1 inline h-4 w-4" /></button> : <button type="submit" disabled={submitting} className="min-h-11 flex-1 rounded-xl bg-[#07BE8A] px-5 text-sm font-bold text-[#06434A] transition hover:bg-[#009966] hover:text-white disabled:cursor-not-allowed disabled:opacity-60">{submitting ? "Enviando…" : "Solicitar presupuesto"}</button>}
           </div>
         </form>
       </div>
