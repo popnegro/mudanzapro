@@ -1,6 +1,9 @@
 import type { QuoteLead } from "../types";
 
-export type LeadPayload = Omit<QuoteLead, "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest"> &
+export type LeadPayload = Omit<
+  QuoteLead,
+  "status" | "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest"
+> &
   Partial<Pick<QuoteLead, "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest">>;
 
 const MAX_TEXT_LENGTH = 500;
