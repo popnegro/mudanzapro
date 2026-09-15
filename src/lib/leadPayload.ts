@@ -1,10 +1,16 @@
 import type { QuoteLead } from "../types";
 
-export type LeadPayload = Omit<
-  QuoteLead,
-  "status" | "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest"
-> &
-  Partial<Pick<QuoteLead, "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest">>;
+export type LeadPayload =
+  Omit<
+    QuoteLead,
+    "status" | "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest"
+  > &
+  Partial<
+    Pick<
+      QuoteLead,
+      "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest"
+    >
+  >;
 
 const MAX_TEXT_LENGTH = 500;
 const MAX_NOTES_LENGTH = 2000;
@@ -34,15 +40,35 @@ export function validateLeadPayload(value: unknown): LeadPayload {
   const moveSize = input.moveSize;
   const scheduledDate = String(input.scheduledDate ?? "").trim();
 
-  if (customerName.length < 2 || customerName.length > MAX_TEXT_LENGTH) throw new Error("Invalid customer name.");
-  if (phone.replace(/\D/g, "").length < 8 || phone.length > 40) throw new Error("Invalid phone.");
-  if (email && (email.length > 254 || !EMAIL_PATTERN.test(email))) throw new Error("Invalid email.");
+  if (customerName.length < 2 || customerName.length > MAX_TEXT_LENGTH) {
+    throw new Error("Invalid customer name.");
+  }
+  if (phone.replace(/\D/g, "").length < 8 || phone.length > 40) {
+    throw new Error("Invalid phone.");
+  }
+  if (email && (email.length > 254 || !EMAIL_PATTERN.test(email))) {
+    throw new Error("Invalid email.");
+  }
   if (!originDept || !destDept) throw new Error("Origin and destination are required.");
   if (!isValidIsoDate(scheduledDate)) throw new Error("Invalid scheduled date.");
-  if (moveSize !== "chico" && moveSize !== "mediano" && moveSize !== "grande") throw new Error("Invalid move size.");
+  if (moveSize !== "chico" && moveSize !== "mediano" && moveSize !== "grande") {
+    throw new Error("Invalid move size.");
+  }
 
-  const numberFields = [input.distanceKm, input.estimatedCost, input.floorOrigin, input.floorDest];
-  if (numberFields.some((field) => field !== undefined && field !== null && !Number.isFinite(Number(field)))) {
+  const numberFields = [
+    input.distanceKm,
+    input.estimatedCost,
+    input.floorOrigin,
+    input.floorDest,
+  ];
+  if (
+    numberFields.some(
+      (field) =>
+        field !== undefined &&
+        field !== null &&
+        !Number.isFinite(Number(field)),
+    )
+  ) {
     throw new Error("Invalid numeric field.");
   }
 
@@ -78,14 +104,18 @@ export function validateLeadPayload(value: unknown): LeadPayload {
     phone,
     originDept: originDept.slice(0, 120),
     destDept: destDept.slice(0, 120),
-    originAddress: String(input.originAddress ?? "").trim().slice(0, MAX_TEXT_LENGTH) || undefined,
-    destinationAddress: String(input.destinationAddress ?? "").trim().slice(0, MAX_TEXT_LENGTH) || undefined,
+    originAddress:
+      String(input.originAddress ?? "").trim().slice(0, MAX_TEXT_LENGTH) || undefined,
+    destinationAddress:
+      String(input.destinationAddress ?? "").trim().slice(0, MAX_TEXT_LENGTH) || undefined,
     moveSize,
     furnitureList,
     servicesSelected,
     distanceKm: Number(input.distanceKm ?? 0),
-    hasElevatorOrigin: typeof input.hasElevatorOrigin === "boolean" ? input.hasElevatorOrigin : undefined,
-    hasElevatorDest: typeof input.hasElevatorDest === "boolean" ? input.hasElevatorDest : undefined,
+    hasElevatorOrigin:
+      typeof input.hasElevatorOrigin === "boolean" ? input.hasElevatorOrigin : undefined,
+    hasElevatorDest:
+      typeof input.hasElevatorDest === "boolean" ? input.hasElevatorDest : undefined,
     floorOrigin: input.floorOrigin == null ? undefined : Number(input.floorOrigin),
     floorDest: input.floorDest == null ? undefined : Number(input.floorDest),
     scheduledDate,
