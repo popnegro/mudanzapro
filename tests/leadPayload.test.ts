@@ -36,7 +36,11 @@ test("valid lead payload is normalized", () => {
 });
 
 test("optional elevator and floor fields are accepted", () => {
-  const lead = validateLeadPayload({ ...validLead, hasElevatorOrigin: undefined, floorOrigin: null });
+  const lead = validateLeadPayload({
+    ...validLead,
+    hasElevatorOrigin: undefined,
+    floorOrigin: null,
+  });
 
   assert.equal(lead.hasElevatorOrigin, undefined);
   assert.equal(lead.floorOrigin, undefined);
@@ -91,8 +95,16 @@ test("invalid furniture items are discarded", () => {
 });
 
 test("lead arrays are bounded and service values are normalized", () => {
-  const furnitureList = Array.from({ length: 150 }, (_, index) => ({ itemId: `item-${index}`, count: 1 }));
-  const servicesSelected = [" embalaje ", "", "  traslado  ", ...Array.from({ length: 150 }, (_, index) => `service-${index}`)];
+  const furnitureList = Array.from(
+    { length: 150 },
+    (_, index) => ({ itemId: `item-${index}`, count: 1 }),
+  );
+  const servicesSelected = [
+    " embalaje ",
+    "",
+    "  traslado  ",
+    ...Array.from({ length: 150 }, (_, index) => `service-${index}`),
+  ];
   const lead = validateLeadPayload({ ...validLead, furnitureList, servicesSelected });
 
   assert.equal(lead.furnitureList.length, 100);
