@@ -7,7 +7,20 @@ export type LeadPayload = Omit<
   Partial<Pick<QuoteLead, "hasElevatorOrigin" | "hasElevatorDest" | "floorOrigin" | "floorDest">>;
 
 const MAX_TEXT_LENGTH = 500;
+const MAX_NOTES_LENGTH = 2000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function isValidIsoDate(value: string): boolean {
+  if (!DATE_PATTERN.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
 
 export function validateLeadPayload(value: unknown): LeadPayload {
   if (!value || typeof value !== "object") throw new Error("Invalid lead payload.");
@@ -25,7 +38,7 @@ export function validateLeadPayload(value: unknown): LeadPayload {
   if (phone.replace(/\D/g, "").length < 8 || phone.length > 40) throw new Error("Invalid phone.");
   if (email && (email.length > 254 || !EMAIL_PATTERN.test(email))) throw new Error("Invalid email.");
   if (!originDept || !destDept) throw new Error("Origin and destination are required.");
-  if (!scheduledDate || !/^\d{4}-\d{2}-\d{2}$/.test(scheduledDate)) throw new Error("Invalid scheduled date.");
+  if (!isValidIsoDate(scheduledDate)) throw new Error("Invalid scheduled date.");
   if (moveSize !== "chico" && moveSize !== "mediano" && moveSize !== "grande") throw new Error("Invalid move size.");
 
   const numberFields = [input.distanceKm, input.estimatedCost, input.floorOrigin, input.floorDest];
@@ -37,16 +50,27 @@ export function validateLeadPayload(value: unknown): LeadPayload {
     ? input.furnitureList
         .filter(
           (item): item is { itemId: string; count: number } =>
-            Boolean(item && typeof item.itemId === "string" && Number.isFinite(item.count)),
+            Boolean(
+              item &&
+                typeof item.itemId === "string" &&
+                item.itemId.length > 0 &&
+                Number.isInteger(item.count) &&
+                item.count >= 0 &&
+                item.count <= 100,
+            ),
         )
         .slice(0, 100)
     : [];
   const servicesSelected = Array.isArray(input.servicesSelected)
-    ? input.servicesSelected.map(String).slice(0, 100)
+    ? input.servicesSelected
+        .map(String)
+        .map((service) => service.trim())
+        .filter(Boolean)
+        .slice(0, 100)
     : [];
 
   return {
-    id: String(input.id ?? crypto.randomUUID()).slice(0, 100),
+    id: String(input.id ?? crypto.randomUUID()).trim().slice(0, 100),
     createdAt: String(input.createdAt ?? new Date().toISOString()),
     brand: input.brand === "miranda" || input.brand === "empresas" ? input.brand : "mendoza",
     customerName,
@@ -66,6 +90,6 @@ export function validateLeadPayload(value: unknown): LeadPayload {
     floorDest: input.floorDest == null ? undefined : Number(input.floorDest),
     scheduledDate,
     estimatedCost: Number(input.estimatedCost ?? 0),
-    notes: String(input.notes ?? "").trim().slice(0, 2000) || undefined,
+    notes: String(input.notes ?? "").trim().slice(0, MAX_NOTES_LENGTH) || undefined,
   };
 }
