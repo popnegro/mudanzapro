@@ -274,21 +274,43 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        <footer className="border-t border-slate-200 bg-white">
-          <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-            <div className="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
+        <footer className="border-t border-[var(--theme-border)] bg-[var(--theme-background)] text-[var(--theme-text)]">
+          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10">
+            <div className="grid gap-10 lg:grid-cols-[1.2fr_.8fr] lg:items-start">
               <div className="max-w-xl">
-                <div className="flex items-center gap-2 text-[#06434A]"><span className="grid h-8 w-8 place-items-center rounded-lg bg-[#06434A] text-white"><Truck className="h-4 w-4" /></span><span className="font-black">MudanzaPro</span></div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">Herramientas independientes para entender, calcular y preparar una mudanza en Mendoza.</p>
+                <button onClick={() => navigate('inicio')} className="inline-flex min-h-11 items-center gap-3 rounded-xl text-left" aria-label="Ir al inicio de MudanzaPro">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--theme-primary)] text-white shadow-sm">
+                    <Truck className="h-5 w-5" />
+                  </span>
+                  <span className="text-lg font-black tracking-tight text-[var(--theme-primary)]">MudanzaPro</span>
+                </button>
+                <p className="mt-4 text-sm leading-6 text-[var(--theme-text-secondary)]">
+                  Herramientas independientes para entender, calcular y preparar una mudanza en Mendoza.
+                </p>
               </div>
-              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-slate-600">
-                <button onClick={() => navigate('calculadora')} className="hover:text-[#009966]">Calcular</button>
-                <button onClick={() => navigate('checklist')} className="hover:text-[#009966]">Organizar</button>
-                <button onClick={() => navigate('servicios')} className="hover:text-[#009966]">Servicios</button>
-                <button onClick={() => navigate('faq')} className="hover:text-[#009966]">Preguntas</button>
-              </div>
+
+              <nav className="flex flex-wrap gap-x-6 gap-y-3 lg:justify-end" aria-label="Navegación del pie de página">
+                {[
+                  ['calculadora', 'Calcular'],
+                  ['checklist', 'Organizar'],
+                  ['servicios', 'Servicios'],
+                  ['faq', 'Preguntas'],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    onClick={() => navigate(id)}
+                    className="rounded-lg px-2 py-1 text-sm font-bold text-[var(--theme-text-secondary)] transition hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)]"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
             </div>
-            <div className="mt-8 flex flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-500 sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} MudanzaPro</span><span>Herramienta independiente de planificación.</span></div>
+
+            <div className="mt-10 flex flex-col gap-2 border-t border-[var(--theme-border)] pt-5 text-xs text-[var(--theme-text-secondary)] sm:flex-row sm:items-center sm:justify-between">
+              <span>© {new Date().getFullYear()} MudanzaPro</span>
+              <span>Herramienta independiente de planificación.</span>
+            </div>
           </div>
         </footer>
       </div>
