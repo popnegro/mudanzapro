@@ -24,17 +24,18 @@ import { BRANDS } from './data';
 import { BrandConfig } from './types';
 import { useLeads } from './hooks/useLeads';
 import { useAppNavigation } from './hooks/useAppNavigation';
+import { themeConfig } from './theme/theme.config';
 
 const neutralBrand: BrandConfig = {
   ...BRANDS.empresas,
-  name: 'MudanzaPro',
-  tagline: 'Herramientas para planificar, estimar y preparar tu mudanza en Mendoza',
-  primaryColor: 'from-[#06434A] to-[#07BE8A]',
-  secondaryColor: '#06434A',
-  accentColor: '#07BE8A',
-  gradientFrom: '#06434A',
-  gradientTo: '#07BE8A',
-  domain: 'mudanzapro.vercel.app',
+  name: themeConfig.brand.name,
+  tagline: themeConfig.brand.tagline,
+  primaryColor: `from-[${themeConfig.palette.primary}] to-[${themeConfig.palette.accent}]`,
+  secondaryColor: themeConfig.palette.primary,
+  accentColor: themeConfig.palette.accent,
+  gradientFrom: themeConfig.palette.primary,
+  gradientTo: themeConfig.palette.accent,
+  domain: themeConfig.site.domain,
   phone: '',
   email: '',
   address: '',
@@ -187,6 +188,17 @@ export default function App() {
   const { activePage, setActivePage, selectedGeographicZone, setSelectedGeographicZone, viewMode, setViewMode } = useAppNavigation();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const activeBrand = useMemo(() => neutralBrand, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--theme-primary', themeConfig.palette.primary);
+    document.documentElement.style.setProperty('--theme-primary-dark', themeConfig.palette.primaryDark);
+    document.documentElement.style.setProperty('--theme-accent', themeConfig.palette.accent);
+    document.documentElement.style.setProperty('--theme-surface', themeConfig.palette.surface);
+    document.documentElement.style.setProperty('--theme-background', themeConfig.palette.background);
+    document.documentElement.style.setProperty('--theme-text', themeConfig.palette.text);
+    document.documentElement.style.setProperty('--theme-text-secondary', themeConfig.palette.textSecondary);
+    document.documentElement.style.setProperty('--theme-border', themeConfig.palette.border);
+  }, []);
 
   useEffect(() => {
     document.body.classList.add('mudanzapro-app');
