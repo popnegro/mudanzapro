@@ -18,7 +18,7 @@ interface AddressAutocompleteProps {
 
 const API_KEY =
   process.env.GOOGLE_MAPS_PLATFORM_KEY ||
-  (import.meta as { env: Record<string, string> }).env
+  (import.meta as unknown as { env?: Record<string, string> }).env
     ?.VITE_GOOGLE_MAPS_PLATFORM_KEY ||
   (globalThis as { GOOGLE_MAPS_PLATFORM_KEY?: string })
     .GOOGLE_MAPS_PLATFORM_KEY ||
