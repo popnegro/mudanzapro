@@ -2,14 +2,23 @@
 
 :root {
   color-scheme: light;
-  --mp-ink: #12383a;
-  --mp-ink-strong: #06434a;
-  --mp-accent: #07be8a;
+  /* theme-mudanzas canonical tokens; fallbacks preserve first-paint parity. */
+  --theme-primary: #06434a;
+  --theme-primary-dark: #05373d;
+  --theme-accent: #07be8a;
+  --theme-surface: #ffffff;
+  --theme-background: #faf9f5;
+  --theme-text: #12383a;
+  --theme-text-secondary: #5f6b73;
+  --theme-border: #dfe8e4;
+  --mp-ink: var(--theme-text);
+  --mp-ink-strong: var(--theme-primary);
+  --mp-accent: var(--theme-accent);
   --mp-accent-strong: #009966;
-  --mp-paper: #faf9f5;
-  --mp-surface: #ffffff;
+  --mp-paper: var(--theme-background);
+  --mp-surface: var(--theme-surface);
   --mp-surface-soft: #f3f7f5;
-  --mp-border: #dfe8e4;
+  --mp-border: var(--theme-border);
   --mp-muted: #647579;
 }
 
