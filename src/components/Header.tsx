@@ -179,17 +179,6 @@ export default function Header({
       id="header-section"
       className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm"
     >
-      {/* High-converting Promo Announcement Bar */}
-      <div className="bg-amber-500 text-gray-950 text-[11px] font-black py-2 px-4 text-center flex items-center justify-center gap-2 tracking-wide uppercase shadow-inner">
-        <Sparkles className="w-4 h-4 text-gray-950" />
-        <span>
-          ¡OFERTA DE TEMPORADA! 15% de Descuento en tu mudanza de Lunes a Jueves
-          reservando hoy • Precios fijos garantizados
-        </span>
-        <span className="hidden sm:inline bg-gray-950 text-amber-400 text-[9px] px-2 py-0.5 rounded-full font-black ml-1.5">
-          CUPOS LIMITADOS
-        </span>
-      </div>
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
