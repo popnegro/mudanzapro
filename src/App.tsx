@@ -23,7 +23,8 @@ import RecommendedCompanies from './components/RecommendedCompanies';
 import { BRANDS } from './data';
 import { BrandConfig } from './types';
 import { useLeads } from './hooks/useLeads';
-import { useAppNavigation } from './hooks/useAppNavigation';\nimport { themeConfig } from './theme/theme.config';
+import { useAppNavigation } from './hooks/useAppNavigation';
+import { themeConfig } from './theme/theme.config';
 
 const neutralBrand: BrandConfig = {
   ...BRANDS.empresas,
