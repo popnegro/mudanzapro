@@ -23,7 +23,7 @@ import RecommendedCompanies from './components/RecommendedCompanies';
 import { BRANDS } from './data';
 import { BrandConfig } from './types';
 import { useLeads } from './hooks/useLeads';
-import { useAppNavigation } from './hooks/useAppNavigation';
+import { useAppNavigation } from './hooks/useAppNavigation';\nimport { themeConfig } from './theme/theme.config';
 
 const neutralBrand: BrandConfig = {
   ...BRANDS.empresas,
@@ -89,7 +89,7 @@ function Home({ onNavigate }: { onNavigate: (page: string) => void }) {
               </button>
             </div>
             <p className="mt-5 max-w-xl text-xs leading-5 text-slate-500">
-              MudanzaPro no es una empresa de mudanzas: es una herramienta independiente de planificación y decisión.
+              MudanzaPro es una plataforma de planificación y resolución de Mudanzas Miranda.
             </p>
           </div>
 
@@ -267,7 +267,7 @@ export default function App() {
             <div className="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-xl">
                 <div className="flex items-center gap-2 text-[#06434A]"><span className="grid h-8 w-8 place-items-center rounded-lg bg-[#06434A] text-white"><Truck className="h-4 w-4" /></span><span className="font-black">MudanzaPro</span></div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">Herramientas independientes para entender, calcular y preparar una mudanza en Mendoza.</p>
+                <p className="mt-3 text-sm leading-6 text-slate-600">Plataforma de Mudanzas Miranda para entender, calcular y preparar una mudanza en Mendoza.</p>
               </div>
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-slate-600">
                 <button onClick={() => navigate('calculadora')} className="hover:text-[#009966]">Calcular</button>
@@ -276,7 +276,7 @@ export default function App() {
                 <button onClick={() => navigate('faq')} className="hover:text-[#009966]">Preguntas</button>
               </div>
             </div>
-            <div className="mt-8 flex flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-500 sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} MudanzaPro</span><span>Herramienta independiente de planificación.</span></div>
+            <div className="mt-8 flex flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-500 sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} MudanzaPro</span><span>{themeConfig.brandRelationship?.label} {themeConfig.brandRelationship?.parentName} · {themeConfig.brandRelationship?.googleRating?.label}</span></div>
           </div>
         </footer>
       </div>
