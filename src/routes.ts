@@ -22,31 +22,31 @@ export const ALL_ROUTES: RouteConfig[] = [
     label: "Inicio",
     seoTitle: "MudanzaPro — Planificá y prepará tu mudanza en Mendoza",
     seoDescription:
-      "Herramientas para planificar una mudanza en Mendoza: estimación, servicios, zonas, checklist y preparación de la solicitud de presupuesto.",
+      "Herramientas para planificar una mudanza en Mendoza: recorrido, tamaño, servicios, checklist y preparación de la solicitud de presupuesto.",
   },
   {
     id: "calculadora",
-    label: "Calculadora",
+    label: "Calcular",
     prefetchKeys: ["QuoteCalculator"],
-    seoTitle: "Calculadora de Mudanza en Mendoza | MudanzaPro",
+    seoTitle: "Calculá tu mudanza en Mendoza | MudanzaPro",
     seoDescription:
-      "Estimá el volumen de tu mudanza y organizá los datos necesarios para solicitar un presupuesto.",
+      "Calculá el recorrido de tu mudanza con datos de ruta y prepará la información necesaria para solicitar presupuesto a Mudanzas Miranda.",
   },
   {
     id: "servicios",
     label: "Servicios",
     prefetchKeys: ["ServicesSection"],
-    seoTitle: "Servicios de Mudanza en Mendoza | MudanzaPro",
+    seoTitle: "Guía de servicios de mudanza en Mendoza | MudanzaPro",
     seoDescription:
-      "Conocé los tipos de servicios y variables que conviene considerar antes de pedir una cotización.",
+      "Entendé qué puede incluir una mudanza y qué conviene considerar antes de solicitar un presupuesto.",
   },
   {
     id: "directorio",
-    label: "Soluciones",
-    prefetchKeys: ["RecommendedCompanies", "DepartmentsGrid"],
-    seoTitle: "Soluciones para tu Mudanza en Mendoza | MudanzaPro",
+    label: "Mudanzas Miranda",
+    prefetchKeys: ["RecommendedCompanies"],
+    seoTitle: "Mudanzas Miranda | Solicitar presupuesto | MudanzaPro",
     seoDescription:
-      "Elegí el próximo paso: estimar, planificar y preparar tu solicitud de presupuesto. MudanzaPro no es un directorio de prestadores.",
+      "Prepará los datos de tu traslado en MudanzaPro y avanzá hacia una solicitud de presupuesto a Mudanzas Miranda.",
   },
   {
     id: "zonas",
