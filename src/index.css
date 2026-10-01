@@ -144,3 +144,51 @@ body.mudanzapro-app a {
     transform: translateX(100%);
   }
 }
+
+
+/* THEME-MUDANZAS VISUAL PARITY — shared system gate */
+:root {
+  --tm-primary: #06434A;
+  --tm-primary-dark: #05373D;
+  --tm-accent: #07BE8A;
+  --tm-surface: #FFFFFF;
+  --tm-background: #FAF9F5;
+  --tm-text: #12383A;
+  --tm-text-secondary: #5F6B73;
+  --tm-border: #E2E8F0;
+}
+html, body { background: var(--tm-background); color: var(--tm-text); }
+body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.font-serif { font-family: Inter, ui-sans-serif, system-ui, sans-serif !important; }
+[class~="bg-white"] { background-color: var(--tm-surface); }
+[class~="text-slate-900"], [class~="text-gray-900"] { color: var(--tm-text) !important; }
+[class~="text-slate-800"], [class~="text-gray-800"] { color: var(--tm-text) !important; }
+[class~="text-slate-700"], [class~="text-gray-700"] { color: var(--tm-text-secondary) !important; }
+[class~="text-slate-600"], [class~="text-gray-600"] { color: var(--tm-text-secondary) !important; }
+[class~="border-slate-200"], [class~="border-gray-100"], [class~="border-gray-200"] { border-color: var(--tm-border) !important; }
+[class~="bg-slate-50"], [class~="bg-gray-50"] { background-color: #F5F7F7 !important; }
+[class~="bg-brand-green-500"], [class~="bg-emerald-600"], [class~="bg-emerald-500"] { background-color: var(--tm-primary) !important; }
+[class~="hover:bg-brand-green-600"]:hover, [class~="hover:bg-emerald-700"]:hover, [class~="hover:bg-emerald-600"]:hover { background-color: var(--tm-primary-dark) !important; }
+[class~="text-brand-green-500"], [class~="text-brand-green-600"], [class~="text-emerald-600"], [class~="text-emerald-500"] { color: var(--tm-primary) !important; }
+[class~="hover:text-brand-green-600"]:hover, [class~="hover:text-brand-green-500"]:hover { color: var(--tm-primary-dark) !important; }
+[class~="bg-amber-500"], [class~="bg-amber-600"] { background-color: var(--tm-accent) !important; }
+[class~="text-amber-500"], [class~="text-amber-600"] { color: var(--tm-primary) !important; }
+[class~="hover:bg-amber-600"]:hover, [class~="hover:bg-amber-700"]:hover { background-color: var(--tm-primary-dark) !important; }
+[class~="border-amber-500"], [class~="border-amber-200"] { border-color: rgba(7,190,138,.35) !important; }
+[class~="rounded-xl"], [class~="rounded-2xl"] { }
+header.sticky {
+  background: rgba(255,255,255,.96) !important;
+  color: var(--tm-text) !important;
+  border-color: var(--tm-border) !important;
+  box-shadow: 0 2px 16px rgba(18,56,58,.08) !important;
+  backdrop-filter: blur(14px);
+}
+header.sticky nav button, header.sticky nav a { color: var(--tm-text-secondary); }
+header.sticky nav button:hover, header.sticky nav a:hover { color: var(--tm-text) !important; background: rgba(6,67,74,.05) !important; }
+button, a { transition-property: color, background-color, border-color, box-shadow, transform, opacity; transition-duration: 180ms; transition-timing-function: ease-out; }
+input, textarea, select { background: var(--tm-surface) !important; color: var(--tm-text) !important; border-color: var(--tm-border) !important; }
+:focus-visible { outline: 2px solid var(--tm-accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
